@@ -3436,7 +3436,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.14.0, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.16.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.2, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.0, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.14.0, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.16.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.2, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.18.9
   resolution: "@babel/runtime@npm:7.18.9"
   dependencies:
@@ -3643,7 +3643,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/cache@npm:^11.10.0, @emotion/cache@npm:^11.7.1":
+"@emotion/cache@npm:^11.10.0, @emotion/cache@npm:^11.4.0, @emotion/cache@npm:^11.7.1":
   version: 11.10.1
   resolution: "@emotion/cache@npm:11.10.1"
   dependencies:
@@ -3837,6 +3837,29 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 97e3a17c73d46c6379e09e8c8bbd01d2e829a7db22099412afb60377779fed9c9d37589c0b74998fe510f8d52f2520e834b6836237701fcb9513165ef18a76b2
+  languageName: node
+  linkType: hard
+
+"@emotion/react@npm:^11.8.1":
+  version: 11.10.0
+  resolution: "@emotion/react@npm:11.10.0"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    "@emotion/babel-plugin": ^11.10.0
+    "@emotion/cache": ^11.10.0
+    "@emotion/serialize": ^1.1.0
+    "@emotion/utils": ^1.2.0
+    "@emotion/weak-memoize": ^0.3.0
+    hoist-non-react-statics: ^3.3.1
+  peerDependencies:
+    "@babel/core": ^7.0.0
+    react: ">=16.8.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@types/react":
+      optional: true
+  checksum: 51c30698a2f81a541ec6f474665906906d9eb718a5d25567d00b24511701c1bb6563b203370f47adc65ee312591ad3366a214bae565bc386f15a5eebfd1ac967
   languageName: node
   linkType: hard
 
@@ -7274,6 +7297,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: 72666dd38a55112088c3f338316d4e4d00c29cc9442c45e7150cd47a1169df14c8bec07500c9b3677b9cf43188cd97c6de093b6e6ff051de92d4f1457c4bc413
+  languageName: node
+  linkType: hard
+
+"@types/react-transition-group@npm:^4.4.0":
+  version: 4.4.5
+  resolution: "@types/react-transition-group@npm:4.4.5"
+  dependencies:
+    "@types/react": "*"
+  checksum: c0d81634ca5e1efac3ca6f6f006245976d584833ab9e933edf08b66551c1c7b9f0bc7878897f57ba44b137d3754583d623c932fe4b7721840ae5218ec2414942
   languageName: node
   linkType: hard
 
@@ -23929,6 +23961,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memoize-one@npm:^5.0.0":
+  version: 5.2.1
+  resolution: "memoize-one@npm:5.2.1"
+  checksum: fd22dbe9a978a2b4f30d6a491fc02fb90792432ad0dab840dc96c1734d2bd7c9cdeb6a26130ec60507eb43230559523615873168bcbe8fafab221c30b11d54c1
+  languageName: node
+  linkType: hard
+
 "memoizerific@npm:^1.11.3":
   version: 1.11.3
   resolution: "memoizerific@npm:1.11.3"
@@ -28867,6 +28906,24 @@ __metadata:
   peerDependencies:
     react: ">=15"
   checksum: cd4e8632b129bedc2a1d850591709a4361903584e147de4ff67af6cd19139bde731f5690cc637d606fccdacb4d7211ab3aa53afbb90ab2aeeeb9492194706a3e
+  languageName: node
+  linkType: hard
+
+"react-select@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "react-select@npm:5.4.0"
+  dependencies:
+    "@babel/runtime": ^7.12.0
+    "@emotion/cache": ^11.4.0
+    "@emotion/react": ^11.8.1
+    "@types/react-transition-group": ^4.4.0
+    memoize-one: ^5.0.0
+    prop-types: ^15.6.0
+    react-transition-group: ^4.3.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 6670d2bd4e328cb748c38804d2ba50de8ef4df7866b6d65025f9641667133b08f68d777e33d6fe37a65cf4641a3a9a7cde9c4191b5d8d662d530337931e124b1
   languageName: node
   linkType: hard
 
@@ -35682,6 +35739,7 @@ swiper@4.5.1:
     prettier: "npm:wp-prettier@2.6.2"
     react: ^17.0.2
     react-dom: ^17.0.2
+    react-select: ^5.4.0
     react-modal: ^3.14.3
     readline-sync: ^1.4.10
     reakit-utils: ^0.15.1
