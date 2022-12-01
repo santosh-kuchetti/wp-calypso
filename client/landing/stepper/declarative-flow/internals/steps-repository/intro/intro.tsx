@@ -1,9 +1,11 @@
 import { Button } from '@automattic/components';
+import { AnimatedCanvas } from './animated-canvas';
 import type { WPElement } from '@wordpress/element';
 
 interface Props {
 	onSubmit: () => void;
 	introContent: IntroContent;
+	flow: string | null;
 }
 
 export interface IntroContent {
@@ -12,9 +14,10 @@ export interface IntroContent {
 	buttonText: string;
 }
 
-const Intro: React.FC< Props > = ( { onSubmit, introContent } ) => {
+const Intro: React.FC< Props > = ( { onSubmit, introContent, flow } ) => {
 	return (
 		<>
+			{ flow === 'newsletter' && <AnimatedCanvas className="intro__animated-canvas" /> }
 			<div className="intro__content">
 				<h1 className="intro__title">
 					<span>{ introContent.title }</span>
