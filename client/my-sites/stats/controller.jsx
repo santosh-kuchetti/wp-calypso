@@ -62,7 +62,7 @@ function getNumPeriodAgo( momentSiteZone, date, period ) {
 }
 
 function getSiteFilters( siteId ) {
-	const filters = [
+	return [
 		//TODO: This Insights route could be removed since it has been set routing as below.
 		// statsPage( '/stats/insights/:site', insights );
 		{
@@ -119,12 +119,10 @@ function getSiteFilters( siteId ) {
 			period: 'year',
 		},
 	];
-
-	return filters;
 }
 
 function getWordAdsFilters( siteId ) {
-	const filters = [
+	return [
 		{
 			title: i18n.translate( 'WordAds - Days' ),
 			path: '/stats/ads/day/' + siteId,
@@ -146,8 +144,6 @@ function getWordAdsFilters( siteId ) {
 			period: 'year',
 		},
 	];
-
-	return filters;
 }
 
 function getMomentSiteZone( state, siteId ) {
@@ -492,7 +488,7 @@ export function emailOpen( context, next ) {
 		return next();
 	}
 
-	const validTabs = [ 'opens_count', 'unique_opens_count' ];
+	const validTabs = [ 'opens_count', 'unique_opens' ];
 	const chartTab = validTabs.includes( queryOptions.tab ) ? queryOptions.tab : 'opens_count';
 
 	context.primary = (
