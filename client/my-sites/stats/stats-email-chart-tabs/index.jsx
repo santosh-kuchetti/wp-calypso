@@ -13,9 +13,9 @@ import memoizeLast from 'calypso/lib/memoize-last';
 import { withPerformanceTrackerStop } from 'calypso/lib/performance-tracking';
 import { recordGoogleEvent } from 'calypso/state/analytics/actions';
 import { getSiteOption } from 'calypso/state/sites/selectors';
-import { requestChartCounts } from 'calypso/state/stats/email-chart-tabs/actions';
 import { QUERY_FIELDS } from 'calypso/state/stats/email-chart-tabs/constants';
 import { getLoadingTabs } from 'calypso/state/stats/email-chart-tabs/selectors';
+import { requestEmailStats } from 'calypso/state/stats/emails/actions';
 import { getSelectedSiteId } from 'calypso/state/ui/selectors';
 import StatsModulePlaceholder from '../stats-module/placeholder';
 import StatTabs from '../stats-tabs';
@@ -89,7 +89,11 @@ class StatModuleChartTabs extends Component {
 		this.intervalId = setInterval( this.makeQuery, DEFAULT_HEARTBEAT );
 	}
 
-	makeQuery = () => this.props.requestChartCounts( this.props.query );
+	makeQuery = () => {
+		const { siteId, postId, period, date, quantity } = this.props.query;
+
+		return this.props.requestEmailStats( siteId, postId, period, date, quantity );
+	};
 
 	render() {
 		const isNewFeatured = config.isEnabled( 'stats/new-main-chart' );
@@ -117,6 +121,7 @@ class StatModuleChartTabs extends Component {
 				/>
 				{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 				<StatsModulePlaceholder className="is-chart" isLoading={ isActiveTabLoading } />
+
 				<Chart barClick={ this.props.barClick } data={ this.props.chartData } minBarWidth={ 35 } />
 				<StatTabs
 					data={ this.props.counts }
@@ -158,12 +163,13 @@ const NO_SITE_STATE = {
 	chartData: [],
 };
 
-const memoizedQuery = memoizeLast( ( chartTab, date, period, quantity, siteId ) => ( {
+const memoizedQuery = memoizeLast( ( chartTab, date, period, quantity, siteId, postId ) => ( {
 	chartTab,
 	date,
 	period,
 	quantity,
 	siteId,
+	postId,
 	statFields: QUERY_FIELDS,
 } ) );
 
@@ -185,8 +191,8 @@ const connectComponent = connect(
 		const isActiveTabLoading = loadingTabs.includes( chartTab ) || chartData.length !== quantity;
 		const timezoneOffset = getSiteOption( state, siteId, 'gmt_offset' ) || 0;
 		const date = getQueryDate( queryDate, timezoneOffset, period, quantity );
-		const queryKey = `${ date }-${ period }-${ quantity }-${ siteId }`;
-		const query = memoizedQuery( chartTab, date, period, quantity, siteId );
+		const queryKey = `${ date }-${ period }-${ quantity }-${ siteId }-${ postId }`;
+		const query = memoizedQuery( chartTab, date, period, quantity, siteId, postId );
 
 		return {
 			chartData,
@@ -197,7 +203,7 @@ const connectComponent = connect(
 			siteId,
 		};
 	},
-	{ recordGoogleEvent, requestChartCounts }
+	{ recordGoogleEvent, requestEmailStats }
 );
 
 export default flowRight(
