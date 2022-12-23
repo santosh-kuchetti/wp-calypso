@@ -14,8 +14,8 @@ import 'calypso/state/stats/init';
  * @returns {boolean}        Whether email stat is being requested
  */
 export function isRequestingEmailStats( state, siteId, postId, fields = [] ) {
-	return state.stats.email
-		? get( state.stats.email.requesting, [ siteId, postId, fields.join() ], false )
+	return state.stats.emails
+		? get( state.stats.emails.requesting, [ siteId, postId ], false )
 		: false;
 }
 
@@ -80,3 +80,20 @@ export const getSiteEmail = createSelector(
 	},
 	( state ) => ( state.stats.emails ? state.stats.emails.queries : [] )
 );
+
+/**
+ * Returns the stat value for the specified site ID,
+ * email ID and stat key
+ *
+ * @param  {object}  state  Global state tree
+ * @param  {number}  siteId Site ID
+ * @param  {number}  postId Email Id
+ * @param  {string}  stat   Stat Key
+ * @returns {*}              Stat value
+ */
+export function getEmailStat( state, siteId, postId, stat ) {
+	const stats = state.stats.emails
+		? get( state.stats.emails.items, [ siteId, postId ], null )
+		: null;
+	return stats ? Object.keys( stats ).map( ( key ) => stats[ key ] ) : null;
+}

@@ -5,7 +5,7 @@ import {
 	EMAIL_STATS_REQUEST_FAILURE,
 	EMAIL_STATS_REQUEST_SUCCESS,
 } from 'calypso/state/action-types';
-import { parseChartData } from 'calypso/state/stats/lists/utils';
+import { parseEmailChartData } from 'calypso/state/stats/lists/utils';
 
 import 'calypso/state/stats/init';
 
@@ -49,10 +49,7 @@ export function requestEmailStats( siteId, postId, period, date, quantity = 30 )
 			.site( siteId )
 			.statsEmailOpens( postId, { period, quantity, date } )
 			.then( ( stats ) => {
-				const emailStats = parseChartData(
-					{ data: stats.timeline, fields: [ 'period', 'opens', 'uniqueOpens' ], unit: period },
-					[]
-				);
+				const emailStats = parseEmailChartData( stats.timeline, [] );
 				dispatch( receiveEmailStats( siteId, postId, emailStats ) );
 				dispatch( {
 					type: EMAIL_STATS_REQUEST_SUCCESS,
