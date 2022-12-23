@@ -1,12 +1,14 @@
+import { getUrlParts } from '@automattic/calypso-url';
 import { Button } from '@automattic/components';
-import { Icon, people, starEmpty, commentContent } from '@wordpress/icons';
+import { Icon, people } from '@wordpress/icons';
 import { localize, translate } from 'i18n-calypso';
 import { flowRight } from 'lodash';
+import page from 'page';
 import PropTypes from 'prop-types';
+import { parse as parseQs, stringify as stringifyQs } from 'qs';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import titlecase from 'to-title-case';
-import page from 'page';
 import Intervals from 'calypso/blocks/stats-navigation/intervals';
 import QueryEmailStats from 'calypso/components/data/query-email-stats';
 import EmptyContent from 'calypso/components/empty-content';
@@ -16,6 +18,7 @@ import WebPreview from 'calypso/components/web-preview';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
 import { decodeEntities, stripHTML } from 'calypso/lib/formatting';
 import memoizeLast from 'calypso/lib/memoize-last';
+import { recordGoogleEvent } from 'calypso/state/analytics/actions';
 import isPrivateSite from 'calypso/state/selectors/is-private-site';
 import {
 	getSiteOption,
@@ -29,17 +32,17 @@ import {
 	isRequestingEmailStats,
 } from 'calypso/state/stats/emails/selectors';
 import { getSelectedSiteId, getSelectedSiteSlug } from 'calypso/state/ui/selectors';
+import DatePicker from '../stats-date-picker';
 import ChartTabs from '../stats-email-chart-tabs';
 // import PostMonths from '../stats-detail-months';
 // import PostWeeks from '../stats-detail-weeks';
-import DatePicker from '../stats-date-picker';
 import StatsPlaceholder from '../stats-module/placeholder';
 import { StatsNoContentBanner } from '../stats-no-content-banner';
 import StatsPeriodHeader from '../stats-period-header';
 import StatsPeriodNavigation from '../stats-period-navigation';
 
 const CHART_OPENS = {
-	attr: 'opens',
+	attr: 'opens_count',
 	legendOptions: [],
 	icon: (
 		<svg className="gridicon" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,6 +75,22 @@ const memoizedQuery = memoizeLast( ( period, endOf ) => ( {
 	period,
 	date: endOf.format( 'YYYY-MM-DD' ),
 } ) );
+
+function getPageUrl() {
+	return getUrlParts( page.current );
+}
+
+function updateQueryString( url = null, query = {} ) {
+	let search = window.location.search;
+	if ( url ) {
+		search = url.search;
+	}
+
+	return {
+		...parseQs( search.substring( 1 ) ),
+		...query,
+	};
+}
 
 class StatsEmailOpenDetail extends Component {
 	static propTypes = {
@@ -156,10 +175,10 @@ class StatsEmailOpenDetail extends Component {
 	};
 
 	getTitle() {
-		const { isLatestEmailsHomepage, email, emailFallback, translate } = this.props;
+		const { isLatestEmailsHomepage, email, emailFallback } = this.props;
 
 		if ( isLatestEmailsHomepage ) {
-			return translate( 'Home page / Archives' );
+			return this.props.translate( 'Home page / Archives' );
 		}
 
 		if ( typeof email?.title === 'string' && email.title.length ) {
@@ -195,10 +214,8 @@ class StatsEmailOpenDetail extends Component {
 		const {
 			isRequestingStats,
 			countViews,
-			email,
 			postId,
 			siteId,
-			siteSlug,
 			showViewLink,
 			previewUrl,
 			date,
@@ -208,12 +225,8 @@ class StatsEmailOpenDetail extends Component {
 		const isLoading = isRequestingStats && ! countViews;
 
 		const queryDate = date.format( 'YYYY-MM-DD' );
-		const emailType = email && email.type !== null ? email.type : 'email';
-		let actionLabel;
-		let noViewsLabel;
-
-		actionLabel = translate( 'View Email' );
-		noViewsLabel = translate( 'Your email has not received any views yet!' );
+		const actionLabel = translate( 'View Email' );
+		const noViewsLabel = translate( 'Your email has not received any views yet!' );
 
 		const { period, endOf } = this.props.period;
 		const traffic = {
@@ -233,8 +246,8 @@ class StatsEmailOpenDetail extends Component {
 					period={ query.period }
 				/>
 				<PageViewTracker
-					path={ `/stats/email/open/:site/:period/:email_id` }
-					title={ `Stats > Single Email` }
+					path="/stats/email/open/:site/:period/:email_id"
+					title="Stats > Single Email"
 				/>
 
 				<FixedNavigationHeader
@@ -249,8 +262,6 @@ class StatsEmailOpenDetail extends Component {
 
 				<StatsPlaceholder isLoading={ isLoading } />
 
-				<div>isLoading = { isLoading.toString() }</div>
-				<div>countViews = { countViews ? JSON.stringify( countViews ) : 'null' }</div>
 				{ ! isLoading && ! countViews && (
 					<EmptyContent
 						title={ noViewsLabel }
@@ -263,17 +274,6 @@ class StatsEmailOpenDetail extends Component {
 					/>
 				) }
 
-				{ /* <div>Pepe!!!!!!!</div>
-					<div>isLoading === { isLoading.toString() }</div>
-					<div>countViews === { JSON.stringify(countViews) }</div>
-					<br/>
-								<div>activeTab={ JSON.stringify(getActiveTab( this.props.chartTab )) }</div>
-								<div>activeLegend={ this.state.activeLegend }</div>
-								<div>availableLegend={ this.getAvailableLegend() }</div>
-								<div>charts={ JSON.stringify(CHARTS) }</div>
-								<div>queryDate={ JSON.stringify(queryDate) }</div>
-								<div>period={ JSON.stringify(this.props.period) }</div>
-								<div>chartTab={ this.props.chartTab }</div> */ }
 				{ ! isLoading && countViews && (
 					<div>
 						<>
@@ -294,25 +294,6 @@ class StatsEmailOpenDetail extends Component {
 								<Intervals selected={ period } pathTemplate={ pathTemplate } compact={ false } />
 							</StatsPeriodHeader>
 
-							{ /* <div>activeTab={ getActiveTab( this.props.chartTab ) }</div>
-								<div>activeLegend={ this.state.activeLegend }</div>
-								<div>availableLegend={ this.getAvailableLegend() }</div>
-								<div>onChangeLegend={ this.onChangeLegend }</div>
-								<div>barClick={ this.barClick }</div>
-								<div>switchTab={ this.switchChart }</div>
-								<div>charts={ CHARTS }</div>
-								<div>queryDate={ queryDate }</div>
-								<div>period={ this.props.period }</div>
-								<div>chartTab={ this.props.chartTab }</div>
-								<div>postId={ postId }</div>
-
-								<div>activeTab={ JSON.stringify(getActiveTab( this.props.chartTab )) }</div>
-								<div>activeLegend={ this.state.activeLegend }</div>
-								<div>availableLegend={ this.getAvailableLegend() }</div>
-								<div>charts={ JSON.stringify(CHARTS) }</div>
-								<div>queryDate={ JSON.stringify(queryDate) }</div>
-								<div>period={ JSON.stringify(this.props.period) }</div>
-								<div>chartTab={ this.props.chartTab }</div> */ }
 							<ChartTabs
 								activeTab={ getActiveTab( this.props.chartTab ) }
 								activeLegend={ this.state.activeLegend }
@@ -330,26 +311,6 @@ class StatsEmailOpenDetail extends Component {
 							{ isSitePrivate ? this.renderPrivateSiteBanner( siteId, slug ) : null }
 							{ ! isSitePrivate && <StatsNoContentBanner siteId={ siteId } siteSlug={ slug } /> }
 						</>
-
-						{ /* { !! postId && <PostLikes siteId={ siteId } postId={ postId } postType={ postType } /> }
-
-						<PostMonths
-							dataKey="years"
-							title={ translate( 'Months and years' ) }
-							total={ translate( 'Total' ) }
-							siteId={ siteId }
-							postId={ postId }
-						/>
-
-						<PostMonths
-							dataKey="averages"
-							title={ translate( 'Average per day' ) }
-							total={ translate( 'Overall' ) }
-							siteId={ siteId }
-							postId={ postId }
-						/>
-
-						<PostWeeks siteId={ siteId } postId={ postId } /> */ }
 					</div>
 				) }
 
@@ -367,27 +328,30 @@ class StatsEmailOpenDetail extends Component {
 	}
 }
 
-const connectComponent = connect( ( state, { postId } ) => {
-	const siteId = getSelectedSiteId( state );
-	const isJetpack = isJetpackSite( state, siteId );
-	const isPreviewable = isSitePreviewable( state, siteId );
-	const isLatestEmailsHomepage =
-		getSiteOption( state, siteId, 'show_on_front' ) === 'email' && postId === 0;
+const connectComponent = connect(
+	( state, { postId } ) => {
+		const siteId = getSelectedSiteId( state );
+		const isJetpack = isJetpackSite( state, siteId );
+		const isPreviewable = isSitePreviewable( state, siteId );
+		const isLatestEmailsHomepage =
+			getSiteOption( state, siteId, 'show_on_front' ) === 'email' && postId === 0;
 
-	return {
-		email: getSiteEmail( state, siteId, postId ),
-		emailFallback: getEmailStat( state, siteId, postId, 'email' ),
-		isLatestEmailsHomepage,
-		countViews: getEmailStat( state, siteId, postId, '' ),
-		// countViews: [1],
-		isRequestingStats: isRequestingEmailStats( state, siteId, postId ),
-		siteSlug: getSiteSlug( state, siteId ),
-		showViewLink: ! isJetpack && ! isLatestEmailsHomepage && isPreviewable,
-		slug: getSelectedSiteSlug( state ),
-		// previewUrl: getEmailPreviewUrl( state, siteId, postId ),
-		isSitePrivate: isPrivateSite( state, siteId ),
-		siteId,
-	};
-} );
+		return {
+			email: getSiteEmail( state, siteId, postId ),
+			emailFallback: getEmailStat( state, siteId, postId, 'email' ),
+			isLatestEmailsHomepage,
+			countViews: getEmailStat( state, siteId, postId, '' ),
+			// countViews: [1],
+			isRequestingStats: isRequestingEmailStats( state, siteId, postId ),
+			siteSlug: getSiteSlug( state, siteId ),
+			showViewLink: ! isJetpack && ! isLatestEmailsHomepage && isPreviewable,
+			slug: getSelectedSiteSlug( state ),
+			// previewUrl: getEmailPreviewUrl( state, siteId, postId ),
+			isSitePrivate: isPrivateSite( state, siteId ),
+			siteId,
+		};
+	},
+	{ recordGoogleEvent }
+);
 
 export default flowRight( connectComponent, localize )( StatsEmailOpenDetail );

@@ -15,7 +15,7 @@ import { recordGoogleEvent } from 'calypso/state/analytics/actions';
 import { getSiteOption } from 'calypso/state/sites/selectors';
 import { requestChartCounts } from 'calypso/state/stats/email-chart-tabs/actions';
 import { QUERY_FIELDS } from 'calypso/state/stats/email-chart-tabs/constants';
-import { getCountRecords, getLoadingTabs } from 'calypso/state/stats/email-chart-tabs/selectors';
+import { getLoadingTabs } from 'calypso/state/stats/email-chart-tabs/selectors';
 import { getSelectedSiteId } from 'calypso/state/ui/selectors';
 import StatsModulePlaceholder from '../stats-module/placeholder';
 import StatTabs from '../stats-tabs';
@@ -118,8 +118,6 @@ class StatModuleChartTabs extends Component {
 				{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 				<StatsModulePlaceholder className="is-chart" isLoading={ isActiveTabLoading } />
 				<Chart barClick={ this.props.barClick } data={ this.props.chartData } minBarWidth={ 35 } />
-				<h1>{ JSON.stringify( this.props.charData ) }</h1>
-				<h1>{ typeof this.props.charData }</h1>
 				<StatTabs
 					data={ this.props.counts }
 					tabs={ this.props.charts }
@@ -179,6 +177,7 @@ const connectComponent = connect(
 		const quantity = 'year' === period ? 10 : 30;
 		const counts =
 			Object.keys( state.stats.emails.items[ siteId ][ postId ] ).map(
+				// eslint-disable-next-line wpcalypso/redux-no-bound-selectors
 				( key ) => state.stats.emails.items[ siteId ][ postId ][ key ]
 			) || [];
 		const chartData = buildChartData( activeLegend, chartTab, counts, period, queryDate );
