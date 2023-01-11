@@ -1,5 +1,7 @@
 import { isEnabled } from '@automattic/calypso-config';
+import { GlobalStylesProvider } from '@automattic/global-styles';
 import { StepContainer, SITE_SETUP_FLOW, SITE_ASSEMBLER_FLOW } from '@automattic/onboarding';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useTranslate } from 'i18n-calypso';
 import { useState, useRef, useEffect } from 'react';
@@ -22,6 +24,27 @@ import type { Step } from '../../types';
 import type { Pattern } from './types';
 import type { DesignRecipe, Design } from '@automattic/design-picker/src/types';
 import './style.scss';
+
+const withGlobalStylesProvider = createHigherOrderComponent(
+	< OuterProps, >( InnerComponent: React.ComponentType< OuterProps > ) => {
+		return ( props: OuterProps ) => {
+			const selectedDesign = useSelect( ( select ) => select( ONBOARD_STORE ).getSelectedDesign() );
+			const siteSlug = useSiteSlugParam();
+			const siteId = useSiteIdParam();
+			const siteSlugOrId = siteSlug ? siteSlug : siteId;
+
+			return (
+				<GlobalStylesProvider
+					siteId={ siteSlugOrId }
+					stylesheet={ selectedDesign?.recipe?.stylesheet }
+				>
+					<InnerComponent { ...props } />
+				</GlobalStylesProvider>
+			);
+		};
+	},
+	'withGlobalStylesProvider'
+);
 
 const PatternAssembler: Step = ( { navigation, flow } ) => {
 	const translate = useTranslate();
@@ -400,4 +423,4 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 	);
 };
 
-export default PatternAssembler;
+export default withGlobalStylesProvider( PatternAssembler );
