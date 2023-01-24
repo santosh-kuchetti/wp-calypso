@@ -52,13 +52,12 @@ export default function ContactDetailsContainer( {
 		.filter( ( product ) => isDomainProduct( product ) || isDomainTransfer( product ) )
 		.filter( ( product ) => ! isDomainMapping( product ) )
 		.map( getDomain );
-	const { updateDomainContactFields, updateCountryCode, updatePostalCode, updateEmail } =
+	const { updateDomainContactFields, updateSomeFields, updateEmail } =
 		useDispatch( 'wpcom-checkout' );
 	const contactDetails = prepareDomainContactDetails( contactInfo );
 	const contactDetailsErrors = prepareDomainContactDetailsErrors( contactInfo );
 	const onChangeContactInfo = ( newInfo: ManagedContactDetails ) => {
-		updateCountryCode( newInfo.countryCode?.value ?? '' );
-		updatePostalCode( newInfo.postalCode?.value ?? '' );
+		updateSomeFields( newInfo );
 	};
 	const { email } = useSelect( ( select ) => select( 'wpcom-checkout' ).getContactInfo() );
 
