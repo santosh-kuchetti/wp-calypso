@@ -4,11 +4,14 @@ import { isJetpackSite } from 'calypso/state/sites/selectors';
 import { activateTheme } from 'calypso/state/themes/actions/activate-theme';
 import { installAndActivateTheme } from 'calypso/state/themes/actions/install-and-activate-theme';
 import { showAutoLoadingHomepageWarning } from 'calypso/state/themes/actions/show-auto-loading-homepage-warning';
+import { showEligibilityWarningDialog } from 'calypso/state/themes/actions/show-eligibility-warning-dialog';
 import { suffixThemeIdForInstall } from 'calypso/state/themes/actions/suffix-theme-id-for-install';
 import {
 	getTheme,
 	hasAutoLoadingHomepageModalAccepted,
 	themeHasAutoLoadingHomepage,
+	hasEligibilityWarningAccepted,
+	isAtomicSiteRequired,
 } from 'calypso/state/themes/selectors';
 
 import 'calypso/state/themes/init';
@@ -41,6 +44,15 @@ export function activate(
 		} else {
 			// Keep default behaviour on Atomic. See https://github.com/Automattic/wp-calypso/pull/65846#issuecomment-1192650587
 			keepCurrentHomepage = isSiteAtomic( getState(), siteId ) ? true : keepCurrentHomepage;
+		}
+
+		if (
+			isAtomicSiteRequired( getState(), themeId ) &&
+			! isJetpackSite( getState(), siteId ) &&
+			! isSiteAtomic( getState(), siteId ) &&
+			! hasEligibilityWarningAccepted( getState(), themeId )
+		) {
+			return dispatch( showEligibilityWarningDialog( themeId ) );
 		}
 
 		/**

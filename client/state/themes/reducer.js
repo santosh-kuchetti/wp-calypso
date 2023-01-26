@@ -37,6 +37,9 @@ import {
 	THEME_SHOW_AUTO_LOADING_HOMEPAGE_WARNING,
 	THEME_HIDE_AUTO_LOADING_HOMEPAGE_WARNING,
 	THEME_ACCEPT_AUTO_LOADING_HOMEPAGE_WARNING,
+	THEME_SHOW_ELIGIBILITY_WARNING,
+	THEME_ACCEPT_ELIGIBILITY_WARNING,
+	THEME_DISMISS_ELIGIBILITY_WARNING,
 	UPSELL_CARD_DISPLAYED,
 	THEMES_LOADING_CART,
 } from 'calypso/state/themes/action-types';
@@ -618,6 +621,32 @@ export function isLoadingCart( state = false, action ) {
 	return state;
 }
 
+export const themeHasEligibilityWarning = ( state = null, action ) => {
+	switch ( action.type ) {
+		case THEME_SHOW_ELIGIBILITY_WARNING: {
+			return {
+				themeId: action.themeId,
+				show: true,
+				accepted: false,
+			};
+		}
+
+		case THEME_ACCEPT_ELIGIBILITY_WARNING: {
+			return {
+				themeId: action.themeId,
+				show: false,
+				accepted: true,
+			};
+		}
+
+		case THEME_DISMISS_ELIGIBILITY_WARNING: {
+			return null;
+		}
+	}
+
+	return state;
+};
+
 const combinedReducer = combineReducers( {
 	queries,
 	queryRequests,
@@ -642,6 +671,7 @@ const combinedReducer = combineReducers( {
 	themesUpdate,
 	upsellCardDisplayed,
 	isLoadingCart,
+	themeHasEligibilityWarning,
 } );
 const themesReducer = withStorageKey( 'themes', combinedReducer );
 

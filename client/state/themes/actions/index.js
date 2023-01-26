@@ -41,3 +41,6 @@ export { tryAndCustomizeTheme } from 'calypso/state/themes/actions/try-and-custo
 export { uploadTheme } from 'calypso/state/themes/actions/upload-theme';
 export { updateThemes } from 'calypso/state/themes/actions/theme-update';
 export { upsellCardDisplayed } from 'calypso/state/themes/actions/upsell-card-displayed';
+export { acceptEligibilityWarningDialog } from 'calypso/state/themes/actions/accept-eligibility-warning-dialog';
+export { dismissEligibilityWarningDialog } from 'calypso/state/themes/actions/dismiss-eligibility-warning-dialog';
+export { showEligibilityWarningDialog } from 'calypso/state/themes/actions/show-eligibility-warning-dialog';

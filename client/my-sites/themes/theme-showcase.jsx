@@ -36,13 +36,13 @@ import {
 	isUpsellCardDisplayed as isUpsellCardDisplayedSelector,
 } from 'calypso/state/themes/selectors';
 import { getThemesBookmark } from 'calypso/state/themes/themes-ui/selectors';
+import EligibilityWarningModal from './eligibility-warning-modal';
 import { addTracking, getSubjectsFromTermTable, trackClick, localizeThemesPath } from './helpers';
 import InstallThemeButton from './install-theme-button';
 import ThemePreview from './theme-preview';
 import ThemesHeader from './themes-header';
 import ThemesSelection from './themes-selection';
 import ThemesToolbarGroup from './themes-toolbar-group';
-
 import './theme-showcase.scss';
 
 const optionShape = PropTypes.shape( {
@@ -533,6 +533,7 @@ class ThemeShowcase extends Component {
 					<QueryProductsList />
 					<ThanksModal source="list" />
 					<AutoLoadingHomepageModal source="list" />
+					<EligibilityWarningModal />
 					<ThemePreview />
 				</div>
 			</div>
