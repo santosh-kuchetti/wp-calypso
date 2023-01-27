@@ -3,6 +3,6 @@ import 'calypso/state/themes/init';
 
 /**
  */
-export function isAtomicSiteRequired( state = {}, themeId: string ): boolean {
+export function doesThemeRequireAtomicSite( state = {}, themeId: string ): boolean {
 	return isExternallyManagedTheme( state, themeId );
 }

@@ -5,51 +5,45 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import EligibilityWarnings from 'calypso/blocks/eligibility-warnings';
 import {
-	acceptEligibilityWarningDialog,
-	dismissEligibilityWarningDialog,
+	acceptAtomicTransferDialog,
+	dismissAtomicTransferDialog,
 	activate as activateTheme,
 } from 'calypso/state/themes/actions';
 import {
 	getCanonicalTheme,
-	getThemeForEligibilityWarning,
-	shouldShowEligibilityWarning,
+	getThemeForAtomicTransferDialog,
+	isExternallyManagedTheme,
+	shouldShowAtomicTransferDialog,
 } from 'calypso/state/themes/selectors';
 import { getSelectedSiteId } from 'calypso/state/ui/selectors';
+import { Theme } from 'calypso/types';
 
-import './auto-loading-homepage-modal.scss';
-
-interface Props {
+interface AtomicTransferDialogProps {
 	siteId?: number;
 	showEligibility: boolean;
-	theme: {
-		author: string;
-		author_uri: string;
-		id: string;
-		name: string;
-	};
-	dispatchAcceptEligibilityWarningDialog: typeof acceptEligibilityWarningDialog;
-	dispatchDismissEligibilityWarningDialog: typeof dismissEligibilityWarningDialog;
+	theme: Theme;
+	isMarketplaceProduct: boolean;
+	dispatchAcceptAtomicTransferDialog: typeof acceptAtomicTransferDialog;
+	dispatchDismissAtomicTransferDialog: typeof dismissAtomicTransferDialog;
 	dispatchActivateTheme: typeof activateTheme;
 	dispatchRecordTracksEvent: typeof recordTracksEvent;
 }
-class EligibilityWarningModal extends Component< Props > {
+class AtomicTransferDialog extends Component< AtomicTransferDialogProps > {
 	handleAccept() {
 		const { siteId, theme } = this.props;
 		if ( ! siteId ) {
 			return;
 		}
-		this.props.dispatchAcceptEligibilityWarningDialog( theme.id );
+		this.props.dispatchAcceptAtomicTransferDialog( theme.id );
 		return this.props.dispatchActivateTheme( theme.id, siteId );
 	}
 
 	handleDismiss() {
-		return this.props.dispatchDismissEligibilityWarningDialog();
+		return this.props.dispatchDismissAtomicTransferDialog();
 	}
 
 	render() {
-		const { showEligibility } = this.props;
-
-		const isMarketplaceProduct = true;
+		const { showEligibility, isMarketplaceProduct } = this.props;
 
 		return (
 			<Dialog
@@ -74,7 +68,7 @@ class EligibilityWarningModal extends Component< Props > {
 export default connect(
 	( state ) => {
 		const siteId = getSelectedSiteId( state );
-		const themeId = getThemeForEligibilityWarning( state );
+		const themeId = getThemeForAtomicTransferDialog( state );
 
 		if ( ! siteId ) {
 			return {};
@@ -83,13 +77,14 @@ export default connect(
 		return {
 			siteId,
 			theme: themeId && getCanonicalTheme( state, siteId, themeId ),
-			showEligibility: shouldShowEligibilityWarning( state, themeId ),
+			showEligibility: shouldShowAtomicTransferDialog( state, themeId ),
+			isMarketplaceProduct: isExternallyManagedTheme( state, themeId ),
 		};
 	},
 	{
-		dispatchAcceptEligibilityWarningDialog: acceptEligibilityWarningDialog,
-		dispatchDismissEligibilityWarningDialog: dismissEligibilityWarningDialog,
+		dispatchAcceptAtomicTransferDialog: acceptAtomicTransferDialog,
+		dispatchDismissAtomicTransferDialog: dismissAtomicTransferDialog,
 		dispatchActivateTheme: activateTheme,
 		dispatchRecordTracksEvent: recordTracksEvent,
 	}
-)( localize( EligibilityWarningModal ) );
+)( localize( AtomicTransferDialog ) );
