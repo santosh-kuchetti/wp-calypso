@@ -5,6 +5,7 @@ import {
 	PLAN_FREE,
 	PLAN_ECOMMERCE_TRIAL_MONTHLY,
 } from '@automattic/calypso-products';
+import { Card } from '@automattic/components';
 import { addQueryArgs } from '@wordpress/url';
 import { localize, useTranslate } from 'i18n-calypso';
 import page from 'page';
@@ -18,6 +19,7 @@ import QueryPlans from 'calypso/components/data/query-plans';
 import QuerySitePurchases from 'calypso/components/data/query-site-purchases';
 import EmptyContent from 'calypso/components/empty-content';
 import Main from 'calypso/components/main';
+import BodySectionCssClass from 'calypso/layout/body-section-css-class';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
 import TrackComponentView from 'calypso/lib/analytics/track-component-view';
 import withTrackingTool from 'calypso/lib/analytics/with-tracking-tool';
@@ -34,6 +36,8 @@ import isSiteWPForTeams from 'calypso/state/selectors/is-site-wpforteams';
 import { getCurrentPlan } from 'calypso/state/sites/plans/selectors';
 import { getSelectedSite, getSelectedSiteId } from 'calypso/state/ui/selectors';
 import PlansHeader from './header';
+
+import './style.scss';
 
 function DomainAndPlanUpsellNotice() {
 	const translate = useTranslate();
@@ -165,7 +169,27 @@ class Plans extends Component {
 	}
 
 	renderEcommerceTrialPage() {
-		return <div className="plans__ecommerce-trial-wrapper">{ this.renderPlansMain() }</div>;
+		const { translate } = this.props;
+
+		return (
+			<>
+				<BodySectionCssClass bodyClass={ [ 'is-trial-plan' ] } />
+
+				<Card className="plans__trial-card">
+					<div className="plans__trial-card-content">
+						<p className="plans__card-title">{ translate( 'You’re in a free trial store' ) }</p>
+						<p className="plans__card-subtitle">
+							{ translate(
+								'Your free trial will end in 5 days. Sign up to a plan by December 13 unlock new features and keep your store running.'
+							) }
+						</p>
+					</div>
+					<div className="plans__chart-wrapper">
+						<span className="plans__chart-label">days left in trial</span>
+					</div>
+				</Card>
+			</>
+		);
 	}
 
 	render() {
@@ -194,8 +218,8 @@ class Plans extends Component {
 				<QueryPlans />
 				<TrackComponentView eventName="calypso_plans_view" />
 				<Main
-					fullWidthLayout={ is2023OnboardingPricingGrid }
-					wideLayout={ ! is2023OnboardingPricingGrid }
+					fullWidthLayout={ is2023OnboardingPricingGrid && ! isEcommerceTrial }
+					wideLayout={ ! ( is2023OnboardingPricingGrid && ! isEcommerceTrial ) }
 				>
 					{ ! canAccessPlans && (
 						<EmptyContent
