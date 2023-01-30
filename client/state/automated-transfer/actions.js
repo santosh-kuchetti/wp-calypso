@@ -5,7 +5,6 @@ import {
 	AUTOMATED_TRANSFER_STATUS_REQUEST,
 	AUTOMATED_TRANSFER_STATUS_SET,
 	AUTOMATED_TRANSFER_STATUS_REQUEST_FAILURE,
-	AUTOMATED_TRANSFER_INITIATE,
 } from 'calypso/state/action-types';
 
 import 'calypso/state/data-layer/wpcom/sites/automated-transfer/eligibility';
@@ -109,9 +108,4 @@ export const updateEligibility = (
 	lastUpdate,
 	siteId,
 	status,
-} );
-
-export const initiateAutomatedTransfer = ( siteId ) => ( {
-	type: AUTOMATED_TRANSFER_INITIATE,
-	siteId,
 } );
