@@ -1,5 +1,6 @@
 import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { FEATURE_INSTALL_THEMES } from '@automattic/calypso-products';
+import AtomicTransferDialog from './atomic-transfer-dialog';
 import { localize, translate } from 'i18n-calypso';
 import { compact, omit, pickBy } from 'lodash';
 import page from 'page';
@@ -36,7 +37,6 @@ import {
 	isUpsellCardDisplayed as isUpsellCardDisplayedSelector,
 } from 'calypso/state/themes/selectors';
 import { getThemesBookmark } from 'calypso/state/themes/themes-ui/selectors';
-import EligibilityWarningModal from './atomic-transfer-dialog';
 import { addTracking, getSubjectsFromTermTable, trackClick, localizeThemesPath } from './helpers';
 import InstallThemeButton from './install-theme-button';
 import ThemePreview from './theme-preview';
@@ -44,6 +44,7 @@ import ThemesHeader from './themes-header';
 import ThemesSelection from './themes-selection';
 import ThemesToolbarGroup from './themes-toolbar-group';
 import './theme-showcase.scss';
+import { initiateAutomatedTransfer as initiateAtomicTransferAction } from 'calypso/state/automated-transfer/actions';
 
 const optionShape = PropTypes.shape( {
 	label: PropTypes.string,
@@ -82,6 +83,7 @@ class ThemeShowcase extends Component {
 		loggedOutComponent: PropTypes.bool,
 		isAtomicSite: PropTypes.bool,
 		isJetpackSite: PropTypes.bool,
+		initiateAtomicTransfer: PropTypes.func,
 	};
 
 	static defaultProps = {
@@ -319,6 +321,12 @@ class ThemeShowcase extends Component {
 		this.setState( { tabFilter }, callback );
 	};
 
+	onAcceptAtomicTransfer = ( { siteId } ) => {
+		const { siteSlug, initiateAtomicTransfer } = this.props;
+		initiateAtomicTransfer( siteId, null, '' );
+		return page( `/setup/atomic-transfer?siteSlug=${ siteSlug }` );
+	};
+
 	allThemes = ( { themeProps } ) => {
 		const { isJetpackSite, children } = this.props;
 		if ( isJetpackSite ) {
@@ -533,7 +541,7 @@ class ThemeShowcase extends Component {
 					<QueryProductsList />
 					<ThanksModal source="list" />
 					<AutoLoadingHomepageModal source="list" />
-					<EligibilityWarningModal />
+					<AtomicTransferDialog onAcceptAtomicTransfer={ this.onAcceptAtomicTransfer } />
 					<ThemePreview />
 				</div>
 			</div>
@@ -562,4 +570,8 @@ const mapStateToProps = ( state, { siteId, filter, tier, vertical } ) => {
 	};
 };
 
-export default connect( mapStateToProps, null )( localize( ThemeShowcase ) );
+const mapDispatchToProps = {
+	initiateAtomicTransfer: initiateAtomicTransferAction,
+};
+
+export default connect( mapStateToProps, mapDispatchToProps )( localize( ThemeShowcase ) );

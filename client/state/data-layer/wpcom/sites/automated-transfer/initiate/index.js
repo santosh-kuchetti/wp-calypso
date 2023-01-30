@@ -1,5 +1,8 @@
 import { translate } from 'i18n-calypso';
-import { AUTOMATED_TRANSFER_INITIATE_WITH_PLUGIN_ZIP } from 'calypso/state/action-types';
+import {
+	AUTOMATED_TRANSFER_INITIATE,
+	AUTOMATED_TRANSFER_INITIATE_WITH_PLUGIN_ZIP,
+} from 'calypso/state/action-types';
 import { recordTracksEvent } from 'calypso/state/analytics/actions';
 import { fetchAutomatedTransferStatus } from 'calypso/state/automated-transfer/actions';
 import { registerHandlers } from 'calypso/state/data-layer/handler-registry';
@@ -88,6 +91,34 @@ registerHandlers( 'state/data-layer/wpcom/sites/automated-transfer/initiate/inde
 	[ AUTOMATED_TRANSFER_INITIATE_WITH_PLUGIN_ZIP ]: [
 		dispatchRequest( {
 			fetch: initiateTransferWithPluginZip,
+			onSuccess: receiveResponse,
+			onError: receiveError,
+			onProgress: updateUploadProgress,
+		} ),
+	],
+} );
+
+export const initiateTransfer = ( action ) => {
+	const { siteId } = action;
+	return [
+		recordTracksEvent( 'calypso_automated_transfer_inititate_transfer', {
+			context: 'plugin_upload',
+		} ),
+		http(
+			{
+				method: 'POST',
+				path: `/sites/${ siteId }/automated-transfers/initiate`,
+				apiVersion: '1',
+			},
+			action
+		),
+	];
+};
+
+registerHandlers( 'state/data-layer/wpcom/sites/automated-transfer/initiate/index.js', {
+	[ AUTOMATED_TRANSFER_INITIATE ]: [
+		dispatchRequest( {
+			fetch: initiateTransfer,
 			onSuccess: receiveResponse,
 			onError: receiveError,
 			onProgress: updateUploadProgress,

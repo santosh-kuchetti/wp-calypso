@@ -51,6 +51,9 @@ const availableFlows: Record< string, () => Promise< { default: Flow } > > = {
 		import( /* webpackChunkName: "free-post-setup-flow" */ '../declarative-flow/free-post-setup' ),
 
 	build: () => import( /* webpackChunkName: "build-flow" */ '../declarative-flow/build' ),
+
+	'atomic-transfer': () =>
+		import( /* webpackChunkName: "atomic-transfer-flow" */ '../declarative-flow/atomic-transfer' ),
 };
 
 availableFlows[ 'plugin-bundle' ] = () =>

@@ -22,12 +22,13 @@ interface AtomicTransferDialogProps {
 	siteId?: number;
 	showEligibility: boolean;
 	theme: Theme;
-	isMarketplaceProduct: boolean;
+	isMarketplaceProduct?: boolean;
 	dispatchAcceptAtomicTransferDialog: typeof acceptAtomicTransferDialog;
 	dispatchDismissAtomicTransferDialog: typeof dismissAtomicTransferDialog;
-	dispatchActivateTheme: typeof activateTheme;
 	dispatchRecordTracksEvent: typeof recordTracksEvent;
+	onAcceptAtomicTransfer: Function;
 }
+
 class AtomicTransferDialog extends Component< AtomicTransferDialogProps > {
 	handleAccept() {
 		const { siteId, theme } = this.props;
@@ -35,7 +36,10 @@ class AtomicTransferDialog extends Component< AtomicTransferDialogProps > {
 			return;
 		}
 		this.props.dispatchAcceptAtomicTransferDialog( theme.id );
-		return this.props.dispatchActivateTheme( theme.id, siteId );
+		return this.props.onAcceptAtomicTransfer( {
+			siteId,
+			themeId: theme.id,
+		} );
 	}
 
 	handleDismiss() {
