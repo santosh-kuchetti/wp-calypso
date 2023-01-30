@@ -1,13 +1,15 @@
 import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { Dialog } from '@automattic/components';
-import { localize } from 'i18n-calypso';
+import { localize, translate } from 'i18n-calypso';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import EligibilityWarnings from 'calypso/blocks/eligibility-warnings';
+import Notice from 'calypso/components/notice';
 import {
 	acceptAtomicTransferDialog,
 	dismissAtomicTransferDialog,
 	activate as activateTheme,
+	initiateThemeTransfer,
 } from 'calypso/state/themes/actions';
 import {
 	getCanonicalTheme,
@@ -15,45 +17,98 @@ import {
 	isExternallyManagedTheme,
 	shouldShowAtomicTransferDialog,
 } from 'calypso/state/themes/selectors';
+import {
+	isTransferComplete,
+	isUploadInProgress,
+} from 'calypso/state/themes/upload-theme/selectors';
 import { getSelectedSiteId } from 'calypso/state/ui/selectors';
 import { Theme } from 'calypso/types';
+import './atomic-transfer-dialog.scss';
 
 interface AtomicTransferDialogProps {
 	siteId?: number;
+	inProgress?: boolean;
+	isTransferred?: boolean;
 	showEligibility: boolean;
 	theme: Theme;
-	isMarketplaceProduct: boolean;
+	isMarketplaceProduct?: boolean;
 	dispatchAcceptAtomicTransferDialog: typeof acceptAtomicTransferDialog;
 	dispatchDismissAtomicTransferDialog: typeof dismissAtomicTransferDialog;
 	dispatchActivateTheme: typeof activateTheme;
 	dispatchRecordTracksEvent: typeof recordTracksEvent;
+	dispatchInitiateThemeTransfer: typeof initiateThemeTransfer;
 }
+
 class AtomicTransferDialog extends Component< AtomicTransferDialogProps > {
 	handleAccept() {
-		const { siteId, theme } = this.props;
+		const { siteId, dispatchInitiateThemeTransfer } = this.props;
 		if ( ! siteId ) {
 			return;
 		}
-		this.props.dispatchAcceptAtomicTransferDialog( theme.id );
-		return this.props.dispatchActivateTheme( theme.id, siteId );
+
+		dispatchInitiateThemeTransfer( siteId, null, '' );
+	}
+
+	componentDidUpdate( prevProps: Readonly< AtomicTransferDialogProps > ): void {
+		const { siteId, theme, dispatchActivateTheme, isTransferred } = this.props;
+		if ( siteId && prevProps.isTransferred !== isTransferred && isTransferred ) {
+			dispatchActivateTheme( theme.id, siteId );
+		}
 	}
 
 	handleDismiss() {
 		return this.props.dispatchDismissAtomicTransferDialog();
 	}
 
+	renderActivationInProgress() {
+		const { inProgress } = this.props;
+		const activationText = translate( 'Please wait while we transfer your site.' );
+
+		return (
+			inProgress && (
+				<Notice
+					className="themes__atomic-transfer-dialog-notice"
+					status="is-info"
+					showDismiss={ false }
+					text={ activationText }
+					icon="sync"
+				/>
+			)
+		);
+	}
+
+	renderSuccessfulTransfer() {
+		const { isTransferred } = this.props;
+		const successfulTransferText = translate( 'Your site has been transferred successfully.' );
+
+		return (
+			isTransferred && (
+				<Notice
+					className="themes__atomic-transfer-dialog-notice"
+					status="is-success"
+					showDismiss={ false }
+					text={ successfulTransferText }
+					icon="checkmark"
+				/>
+			)
+		);
+	}
+
 	render() {
-		const { showEligibility, isMarketplaceProduct } = this.props;
+		const { showEligibility, isMarketplaceProduct, inProgress } = this.props;
 
 		return (
 			<Dialog
-				additionalClassNames="plugin-details-cta__dialog-content"
-				additionalOverlayClassNames="plugin-details-cta__modal-overlay"
 				isVisible={ showEligibility }
 				onClose={ () => this.handleDismiss() }
-				showCloseIcon={ true }
+				shouldCloseOnEsc={ ! inProgress }
+				showCloseIcon={ ! inProgress }
 			>
+				{ this.renderActivationInProgress() }
+				{ this.renderSuccessfulTransfer() }
+
 				<EligibilityWarnings
+					isContinueButtonDisabled={ inProgress }
 					currentContext="plugin-details"
 					isMarketplace={ isMarketplaceProduct }
 					standaloneProceed
@@ -79,6 +134,8 @@ export default connect(
 			theme: themeId && getCanonicalTheme( state, siteId, themeId ),
 			showEligibility: shouldShowAtomicTransferDialog( state, themeId ),
 			isMarketplaceProduct: isExternallyManagedTheme( state, themeId ),
+			inProgress: isUploadInProgress( state, siteId ),
+			isTransferred: isTransferComplete( state, siteId ),
 		};
 	},
 	{
@@ -86,5 +143,6 @@ export default connect(
 		dispatchDismissAtomicTransferDialog: dismissAtomicTransferDialog,
 		dispatchActivateTheme: activateTheme,
 		dispatchRecordTracksEvent: recordTracksEvent,
+		dispatchInitiateThemeTransfer: initiateThemeTransfer,
 	}
 )( localize( AtomicTransferDialog ) );
