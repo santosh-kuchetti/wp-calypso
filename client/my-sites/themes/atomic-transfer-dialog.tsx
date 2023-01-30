@@ -5,6 +5,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import EligibilityWarnings from 'calypso/blocks/eligibility-warnings';
 import Notice from 'calypso/components/notice';
+import { getSiteSlug } from 'calypso/state/sites/selectors';
 import {
 	acceptAtomicTransferDialog,
 	dismissAtomicTransferDialog,
@@ -31,6 +32,7 @@ interface AtomicTransferDialogProps {
 	isTransferred?: boolean;
 	showEligibility: boolean;
 	theme: Theme;
+	siteSlug?: string;
 	isMarketplaceProduct?: boolean;
 	dispatchAcceptAtomicTransferDialog: typeof acceptAtomicTransferDialog;
 	dispatchDismissAtomicTransferDialog: typeof dismissAtomicTransferDialog;
@@ -50,9 +52,11 @@ class AtomicTransferDialog extends Component< AtomicTransferDialogProps > {
 	}
 
 	componentDidUpdate( prevProps: Readonly< AtomicTransferDialogProps > ): void {
-		const { siteId, theme, dispatchActivateTheme, isTransferred } = this.props;
-		if ( siteId && prevProps.isTransferred !== isTransferred && isTransferred ) {
-			dispatchActivateTheme( theme.id, siteId );
+		const { siteId, siteSlug, isTransferred } = this.props;
+		if ( siteId && siteSlug && prevProps.isTransferred !== isTransferred && isTransferred ) {
+			window.location.replace(
+				`/themes/${ siteSlug.replace( /\b.wordpress.com/, '.wpcomstaging.com' ) }`
+			);
 		}
 	}
 
@@ -136,6 +140,7 @@ export default connect(
 			isMarketplaceProduct: isExternallyManagedTheme( state, themeId ),
 			inProgress: isUploadInProgress( state, siteId ),
 			isTransferred: isTransferComplete( state, siteId ),
+			siteSlug: getSiteSlug( state, siteId ),
 		};
 	},
 	{
