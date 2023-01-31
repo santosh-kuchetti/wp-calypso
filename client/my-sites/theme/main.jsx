@@ -20,6 +20,7 @@ import AsyncLoad from 'calypso/components/async-load';
 import Badge from 'calypso/components/badge';
 import DocumentHead from 'calypso/components/data/document-head';
 import QueryActiveTheme from 'calypso/components/data/query-active-theme';
+import QueryAtomicTransferStatus from 'calypso/components/data/query-atomic-transfer-status';
 import QueryCanonicalTheme from 'calypso/components/data/query-canonical-theme';
 import QueryProductsList from 'calypso/components/data/query-products-list';
 import QuerySitePlans from 'calypso/components/data/query-site-plans';
@@ -35,6 +36,7 @@ import NavTabs from 'calypso/components/section-nav/tabs';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
 import { decodeEntities, preventWidows } from 'calypso/lib/formatting';
 import { PerformanceTrackerStop } from 'calypso/lib/performance-tracking';
+import { getQueryArgs } from 'calypso/lib/query-args';
 import AutoLoadingHomepageModal from 'calypso/my-sites/themes/auto-loading-homepage-modal';
 import { localizeThemesPath } from 'calypso/my-sites/themes/helpers';
 import ThanksModal from 'calypso/my-sites/themes/thanks-modal';
@@ -760,6 +762,10 @@ class ThemeSheet extends Component {
 		);
 	};
 
+	onTransferComplete = () => {
+		// TBD
+	};
+
 	renderSheet = () => {
 		const section = this.validateSection( this.props.section );
 		const {
@@ -933,6 +939,7 @@ class ThemeSheet extends Component {
 			'is-removed': isRemoved,
 		} );
 
+		const checkAtomicTransferStatus = getQueryArgs()?.[ 'check-atomic-transfer' ] === 'true';
 		return (
 			<Main className={ className }>
 				<QueryCanonicalTheme themeId={ this.props.themeId } siteId={ siteId } />
@@ -974,6 +981,12 @@ class ThemeSheet extends Component {
 				</div>
 				<ThemePreview belowToolbar={ previewUpsellBanner } />
 				<PerformanceTrackerStop />
+				{ checkAtomicTransferStatus && (
+					<QueryAtomicTransferStatus
+						siteId={ siteId }
+						onTransferComplete={ this.onTransferComplete }
+					/>
+				) }
 			</Main>
 		);
 	};
