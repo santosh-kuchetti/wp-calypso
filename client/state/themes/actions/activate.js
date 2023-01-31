@@ -46,6 +46,10 @@ export function activate(
 			keepCurrentHomepage = isSiteAtomic( getState(), siteId ) ? true : keepCurrentHomepage;
 		}
 
+		/**
+		 * Make sure to show the Atomic transfer dialog if the theme requires
+		 * an Atomic site. If the dialog has been accepted, we can continue.
+		 */
 		if (
 			doesThemeRequireAtomicSite( getState(), themeId ) &&
 			! isJetpackSite( getState(), siteId ) &&
