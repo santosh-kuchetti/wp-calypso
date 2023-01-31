@@ -4,7 +4,7 @@ import { useStyle } from '@wordpress/edit-site/build-module/components/global-st
 import { ENTER } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { useState, useMemo, useContext } from 'react';
-import { FONT_PAIRING_VARIATIONS } from '../../constants';
+import { FONT_PAIRING_VARIATIONS } from '../../variations';
 import FontPairingVariationPreview from './font-pairing-variation-preview';
 import type { GlobalStylesObject } from '../../types';
 import './style.scss';
@@ -61,16 +61,16 @@ const FontPairingVariation = ( {
 const FontPairingVariations = () => {
 	const [ selectedIndex, setSelectedIndex ] = useState( INITIAL_INDEX );
 	const { base } = useContext( GlobalStylesContext );
-	const [ , setTextFontFamily ] = useStyle( 'typography.fontFamily' );
-	const [ , setHeadingFontFamily ] = useStyle( 'elements.heading.typography.fontFamily' );
+	const [ , setTypography ] = useStyle( 'typography' );
+	const [ , setHeadingTypography ] = useStyle( 'elements.heading.typography' );
 
 	const selectFontPairingVariation = (
 		fontPairingVariation: GlobalStylesObject,
 		index: number
 	) => {
 		setSelectedIndex( index );
-		setTextFontFamily( fontPairingVariation.styles.typography?.fontFamily );
-		setHeadingFontFamily( fontPairingVariation.styles.elements?.heading?.typography?.fontFamily );
+		setTypography( fontPairingVariation.styles.typography );
+		setHeadingTypography( fontPairingVariation.styles.elements?.heading.typography );
 	};
 
 	return (

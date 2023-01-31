@@ -1,0 +1,25 @@
+{
+	"version": 2,
+	"title": "Jade Fonts",
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"settings": {},
+	"styles": {
+		"elements": {
+			"heading": {
+				"typography": {
+					"fontFamily": "IBM Plex Mono",
+					"fontStyle": "normal",
+					"fontWeight": "400",
+					"lineHeight": "1.125",
+					"textTransform": "uppercase"
+				}
+			}
+		},
+		"typography": {
+			"fontFamily": "var:preset|font-family|ibm-plex-sans",
+			"fontStyle": "normal",
+			"fontWeight": "300",
+			"lineHeight": "1.5"
+		}
+	}
+}

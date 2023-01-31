@@ -30,5 +30,9 @@ export interface GlobalStylesObject {
 		typography?: {
 			fontFamily: string;
 		};
+		color?: {
+			background: string;
+			text: string;
+		};
 	};
 }

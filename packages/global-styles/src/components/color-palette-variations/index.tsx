@@ -1,10 +1,9 @@
 import { GlobalStylesContext } from '@wordpress/edit-site/build-module/components/global-styles/context';
 import { mergeBaseAndUserConfigs } from '@wordpress/edit-site/build-module/components/global-styles/global-styles-provider';
-import { useSetting } from '@wordpress/edit-site/build-module/components/global-styles/hooks';
 import { ENTER } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { useState, useMemo, useContext } from 'react';
-import { COLOR_PALETTE_VARIATIONS } from '../../constants';
+import { COLOR_PALETTE_VARIATIONS } from '../../variations';
 import ColorPaletteVariationPreview from './color-palette-variation-preview';
 import type { GlobalStylesObject } from '../../types';
 import './style.scss';
@@ -60,15 +59,20 @@ const ColorPaletteVariation = ( {
 
 const ColorPaletteVariations = () => {
 	const [ selectedIndex, setSelectedIndex ] = useState( INITIAL_INDEX );
-	const { base } = useContext( GlobalStylesContext );
-	const [ , setThemeColors ] = useSetting( 'color.palette.theme' );
+	const { base, setUserConfig } = useContext( GlobalStylesContext );
+
+	const selectVariation = ( variation: GlobalStylesObject ) => {
+		setUserConfig( ( current: GlobalStylesObject ) =>
+			mergeBaseAndUserConfigs( current, variation )
+		);
+	};
 
 	const selectColorPaletteVariation = (
 		colorPaletteVariation: GlobalStylesObject,
 		index: number
 	) => {
 		setSelectedIndex( index );
-		setThemeColors( colorPaletteVariation.settings.color?.palette.theme );
+		selectVariation( colorPaletteVariation );
 	};
 
 	return (
