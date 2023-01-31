@@ -32,7 +32,7 @@ interface AtomicTransferDialogProps {
 	isTransferred?: boolean;
 	showEligibility: boolean;
 	theme: Theme;
-	siteSlug?: string;
+	siteSlug?: string | null;
 	isMarketplaceProduct?: boolean;
 	dispatchAcceptAtomicTransferDialog: typeof acceptAtomicTransferDialog;
 	dispatchDismissAtomicTransferDialog: typeof dismissAtomicTransferDialog;
