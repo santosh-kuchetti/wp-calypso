@@ -18,6 +18,7 @@ import QueryContactDetailsCache from 'calypso/components/data/query-contact-deta
 import QueryPlans from 'calypso/components/data/query-plans';
 import QuerySitePurchases from 'calypso/components/data/query-site-purchases';
 import EmptyContent from 'calypso/components/empty-content';
+import { withLocalizedMoment } from 'calypso/components/localized-moment';
 import Main from 'calypso/components/main';
 import BodySectionCssClass from 'calypso/layout/body-section-css-class';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
@@ -33,7 +34,12 @@ import { getByPurchaseId } from 'calypso/state/purchases/selectors';
 import { canCurrentUser } from 'calypso/state/selectors/can-current-user';
 import isEligibleForWpComMonthlyPlan from 'calypso/state/selectors/is-eligible-for-wpcom-monthly-plan';
 import isSiteWPForTeams from 'calypso/state/selectors/is-site-wpforteams';
-import { getCurrentPlan } from 'calypso/state/sites/plans/selectors';
+import {
+	getCurrentPlan,
+	getECommerceTrialDaysLeft,
+	getECommerceTrialExpiration,
+	isECommerceTrialExpired,
+} from 'calypso/state/sites/plans/selectors';
 import { getSelectedSite, getSelectedSiteId } from 'calypso/state/ui/selectors';
 import PlansHeader from './header';
 
@@ -169,7 +175,29 @@ class Plans extends Component {
 	}
 
 	renderEcommerceTrialPage() {
-		const { translate } = this.props;
+		const {
+			translate,
+			moment,
+			currentPlan,
+			eCommerceTrialDaysLeft,
+			eCommerceTrialExpiration,
+			isTrialExpired,
+			locale,
+		} = this.props;
+
+		const trialStart = moment( currentPlan?.subscribedDate );
+		const trialEnd = moment( currentPlan?.expiryDate );
+		const trialDuration = trialEnd.diff( trialStart, 'days' );
+
+		// Trial progress from 0 to 100
+		const trialProgress = ( 1 - eCommerceTrialDaysLeft / trialDuration ) * 100;
+
+		// moment.js doesn't have a format option to display the long form in a localized way without the year
+		// https://github.com/moment/moment/issues/3341
+		const readableExpirationDate = eCommerceTrialExpiration?.toDate().toLocaleDateString( locale, {
+			month: 'long',
+			day: 'numeric',
+		} );
 
 		return (
 			<>
@@ -179,17 +207,34 @@ class Plans extends Component {
 					<div className="plans__trial-card-content">
 						<p className="plans__card-title">{ translate( 'You’re in a free trial store' ) }</p>
 						<p className="plans__card-subtitle">
-							{ translate(
-								'Your free trial will end in 5 days. Sign up to a plan by December 13 unlock new features and keep your store running.'
-							) }
+							{
+								// Still need to populate the date correctly
+								translate(
+									'Your free trial will end in %(daysLeft)d day. Sign up to a plan by %(expirationdate)s to unlock new features and keep your store running.',
+									'Your free trial will end in %(daysLeft)d days. Sign up to a plan by %(expirationdate)s to unlock new features and keep your store running.',
+									{
+										count: eCommerceTrialDaysLeft,
+										args: {
+											daysLeft: eCommerceTrialDaysLeft,
+											expirationdate: readableExpirationDate,
+										},
+									}
+								)
+							}
 						</p>
 					</div>
 					<div className="plans__chart-wrapper">
-						<div className="plans__chart" style={ { '--p': '25' } }>
-							5
+						<div className="plans__chart" style={ { '--p': trialProgress } }>
+							{ eCommerceTrialDaysLeft }
 						</div>
 						<br />
-						<span className="plans__chart-label">days left in trial</span>
+						<span className="plans__chart-label">
+							{ isTrialExpired
+								? translate( 'Your free trial has expired' )
+								: translate( 'day left in trial', 'days left in trial', {
+										count: eCommerceTrialDaysLeft,
+								  } ) }
+						</span>
 					</div>
 				</Card>
 			</>
@@ -257,6 +302,9 @@ export default connect( ( state ) => {
 		getPlan( currentPlan?.productSlug )?.term
 	);
 	const is2023OnboardingPricingGrid = isEnabled( 'onboarding/2023-pricing-grid' );
+	const eCommerceTrialDaysLeft = Math.round( getECommerceTrialDaysLeft( state, selectedSiteId ) );
+	const isTrialExpired = isECommerceTrialExpired( state, selectedSiteId );
+	const eCommerceTrialExpiration = getECommerceTrialExpiration( state, selectedSiteId );
 
 	return {
 		currentPlan,
@@ -269,5 +317,8 @@ export default connect( ( state ) => {
 		showTreatmentPlansReorderTest: isTreatmentPlansReorderTest( state ),
 		plansLoaded: Boolean( getPlanSlug( state, getPlan( PLAN_FREE )?.getProductId() || 0 ) ),
 		is2023OnboardingPricingGrid,
+		eCommerceTrialDaysLeft,
+		isTrialExpired,
+		eCommerceTrialExpiration,
 	};
-} )( localize( withTrackingTool( 'HotJar' )( Plans ) ) );
+} )( localize( withTrackingTool( 'HotJar' )( withLocalizedMoment( Plans ) ) ) );
