@@ -159,6 +159,12 @@ class ThemeSheet extends Component {
 		return !! this.props.screenshots;
 	};
 
+	isLoading = () => {
+		const { isLoading, checkAtomicTransferStatus } = this.props;
+		const { isAtomicTransferCompleted } = this.state;
+		return isLoading || ( checkAtomicTransferStatus && ! isAtomicTransferCompleted );
+	};
+
 	// If a theme has been removed by a theme shop, then the theme will still exist and a8c will take over any support responsibilities.
 	isRemoved = () =>
 		!! this.props.taxonomies?.theme_status?.find( ( status ) => status.slug === 'removed' );
@@ -694,8 +700,6 @@ class ThemeSheet extends Component {
 		const price = this.renderPrice();
 		const placeholder = <span className="theme__sheet-button-placeholder">loading......</span>;
 		const { isActive, isExternallyManagedTheme, isLoggedIn } = this.props;
-		const { isLoading, checkAtomicTransferStatus } = this.props;
-		const { isAtomicTransferCompleted } = this.state;
 
 		return (
 			<Button
@@ -710,7 +714,7 @@ class ThemeSheet extends Component {
 				}
 				onClick={ this.onButtonClick }
 				primary
-				disabled={ isLoading || ( checkAtomicTransferStatus && ! isAtomicTransferCompleted ) }
+				disabled={ this.isLoading() }
 				target={ isActive ? '_blank' : null }
 			>
 				{ this.isLoaded() ? label : placeholder }
@@ -810,7 +814,6 @@ class ThemeSheet extends Component {
 			isExternallyManagedTheme,
 			isSiteEligibleForManagedExternalThemes,
 			isMarketplaceThemeSubscribed,
-			isLoading,
 			checkAtomicTransferStatus,
 		} = this.props;
 
@@ -891,7 +894,7 @@ class ThemeSheet extends Component {
 		}
 
 		const upsellNudgeClasses = classNames( 'theme__page-upsell-banner', {
-			'theme__page-upsell-disabled': isLoading,
+			'theme__page-upsell-disabled': this.isLoading(),
 		} );
 
 		if ( hasWpComThemeUpsellBanner ) {
