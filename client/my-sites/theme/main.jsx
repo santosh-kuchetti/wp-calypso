@@ -24,8 +24,8 @@ import QueryCanonicalTheme from 'calypso/components/data/query-canonical-theme';
 import QueryProductsList from 'calypso/components/data/query-products-list';
 import QuerySitePlans from 'calypso/components/data/query-site-plans';
 import QuerySitePurchases from 'calypso/components/data/query-site-purchases';
-import QueryThemeAvailabilityForSite from 'calypso/components/data/query-theme-availability-for-site';
 import QueryUserPurchases from 'calypso/components/data/query-user-purchases';
+import SyncActiveTheme from 'calypso/components/data/sync-active-theme';
 import HeaderCake from 'calypso/components/header-cake';
 import InlineSupportLink from 'calypso/components/inline-support-link';
 import Main from 'calypso/components/main';
@@ -778,7 +778,7 @@ class ThemeSheet extends Component {
 		);
 	};
 
-	onThemeAvialable = () => {
+	onThemeActive = () => {
 		if ( ! this.state.isAtomicTransferCompleted ) {
 			this.setState( {
 				isAtomicTransferCompleted: true,
@@ -787,7 +787,7 @@ class ThemeSheet extends Component {
 			const { isAtomic, siteSlug } = this.props;
 			if ( ! isAtomic ) {
 				const newSiteSlug = siteSlug.replace( /\b.wordpress.com/, '.wpcomstaging.com' );
-				return page( `/theme/makoney/${ newSiteSlug }?transfer-successful=true` );
+				return page( `/theme/makoney/${ newSiteSlug }?sync-completed=true` );
 			}
 		}
 	};
@@ -1007,10 +1007,10 @@ class ThemeSheet extends Component {
 				<ThemePreview belowToolbar={ previewUpsellBanner } />
 				<PerformanceTrackerStop />
 				{ checkAtomicTransferStatus && (
-					<QueryThemeAvailabilityForSite
+					<SyncActiveTheme
 						siteId={ siteId }
 						themeId={ themeId }
-						onThemeAvialable={ this.onThemeAvialable }
+						onThemeActive={ this.onThemeActive }
 					/>
 				) }
 			</Main>
@@ -1148,7 +1148,7 @@ export default connect(
 			),
 			isLoading,
 			isMarketplaceThemeSubscribed,
-			checkAtomicTransferStatus: getQueryArgs()?.[ 'check-atomic-transfer' ] === 'true',
+			checkAtomicTransferStatus: getQueryArgs()?.[ 'sync-active-theme' ] === 'true',
 		};
 	},
 	{
