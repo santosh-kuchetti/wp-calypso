@@ -332,9 +332,7 @@ object RunAllUnitTests : BuildType({
 		bashNodeScript {
 			name = "Run test suite"
 			executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
-			scriptContent = """
-				./.teamcity/step-scripts/calypso-unit-tests.sh
-			""".trimIndent()
+			scriptContent = "./.teamcity/step-scripts/calypso-unit-tests.sh"
 		}
 		bashNodeScript {
 			name = "Tag build"
