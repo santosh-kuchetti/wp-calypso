@@ -19,8 +19,6 @@ function tc_msg {
 	fi
 }
 
-# This is a bit of global state, since it's hard to handle return values/exit codes
-# with parallelized calls in bash.
 function run_cmd {
 	cmd="$1"
 	name="${2-$1}"
@@ -56,12 +54,16 @@ function run_cmd {
 
 function run_cmds {
 	cmds=$1
-	
+	start=$(date +%s)
+
 	# Run the commands in parallel, then wait for them to finish.
 	for cmd in ${cmds[@]}; do
 		run_cmd $cmd &
 	done
 	wait
+
+	end=$(date +%s)
+	echo "Finished running $cmds in $((end-start))s."
 
 	if [ -f "$EXIT_STATUS_FLAG" ] ; then
 		echo "At least one command failed. Exiting."
