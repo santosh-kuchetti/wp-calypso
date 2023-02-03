@@ -10,7 +10,6 @@ import { Component, Fragment } from 'react';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AsyncLoad from 'calypso/components/async-load';
-import DomainUpsell from 'calypso/components/domains/domain-upsell';
 import { BlockEditorSettings } from 'calypso/data/block-editor/use-block-editor-settings-query';
 import withBlockEditorSettings from 'calypso/data/block-editor/with-block-editor-settings';
 import { addHotJarScript } from 'calypso/lib/analytics/hotjar';
@@ -713,7 +712,6 @@ class CalypsoifyIframe extends Component< ComponentProps, State > {
 				{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 				<div className="main main-column calypsoify is-iframe" role="main">
 					{ ! isIframeLoaded && <Placeholder /> }
-					{ isIframeLoaded && <DomainUpsell /> }
 					{ ( shouldLoadIframe || isIframeLoaded ) && (
 						<Iframe
 							className={ isIframeLoaded ? 'is-loaded' : '' }
