@@ -13,7 +13,6 @@ import { cloudSiteSelection } from 'calypso/jetpack-cloud/controller';
 import { recordPageView } from 'calypso/lib/analytics/page-view';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
 import { recordTracksEvent } from 'calypso/lib/analytics/tracks';
-import { loadExperimentAssignment } from 'calypso/lib/explat';
 import isJetpackCloud from 'calypso/lib/jetpack/is-jetpack-cloud';
 import { navigate } from 'calypso/lib/navigate';
 import { onboardingUrl } from 'calypso/lib/paths';
@@ -428,17 +427,6 @@ export function noSite( context, next ) {
 	return next();
 }
 
-export async function setExperimentVariation( context, next ) {
-	const experimentAssignment = await loadExperimentAssignment(
-		'calypso_sidebar_upsell_dedicated_upgrade_flow_202301'
-	);
-
-	const variationName = experimentAssignment?.variationName;
-	sessionStorage.setItem( 'calypso_sidebar_upsell_experiment', variationName );
-
-	next();
-}
-
 /*
  * Set up site selection based on last URL param and/or handle no-sites error cases
  */
@@ -730,7 +718,11 @@ export function shouldRedirectToJetpackAuthorize( context, site ) {
  * @returns {boolean} Whether the user is in the Domain sidebar upsell experiment.
  */
 export const isDomainSidebarExperimentUser = () => {
-	return 'treatment' === sessionStorage.getItem( 'calypso_sidebar_upsell_experiment' );
+	const domainAndPackage = new URL( document.location ).searchParams.has( 'domainAndPlanPackage' );
+	return (
+		domainAndPackage &&
+		'treatment' === sessionStorage.getItem( 'calypso_sidebar_upsell_experiment' )
+	);
 };
 
 /**
