@@ -17,7 +17,6 @@ import QueryContactDetailsCache from 'calypso/components/data/query-contact-deta
 import QueryPlans from 'calypso/components/data/query-plans';
 import QuerySitePurchases from 'calypso/components/data/query-site-purchases';
 import EmptyContent from 'calypso/components/empty-content';
-import { withLocalizedMoment } from 'calypso/components/localized-moment';
 import Main from 'calypso/components/main';
 import PageViewTracker from 'calypso/lib/analytics/page-view-tracker';
 import TrackComponentView from 'calypso/lib/analytics/track-component-view';
@@ -32,12 +31,7 @@ import { getByPurchaseId } from 'calypso/state/purchases/selectors';
 import { canCurrentUser } from 'calypso/state/selectors/can-current-user';
 import isEligibleForWpComMonthlyPlan from 'calypso/state/selectors/is-eligible-for-wpcom-monthly-plan';
 import isSiteWPForTeams from 'calypso/state/selectors/is-site-wpforteams';
-import {
-	getCurrentPlan,
-	getECommerceTrialDaysLeft,
-	getECommerceTrialExpiration,
-	isECommerceTrialExpired,
-} from 'calypso/state/sites/plans/selectors';
+import { getCurrentPlan } from 'calypso/state/sites/plans/selectors';
 import { getSelectedSite, getSelectedSiteId } from 'calypso/state/ui/selectors';
 import ECommerceTrialPlans from './ecommerce-trial';
 import PlansHeader from './header';
@@ -172,7 +166,7 @@ class Plans extends Component {
 	}
 
 	renderEcommerceTrialPage() {
-		return <ECommerceTrialPlans { ...this.props } />;
+		return <ECommerceTrialPlans />;
 	}
 
 	render() {
@@ -236,9 +230,6 @@ export default connect( ( state ) => {
 		getPlan( currentPlan?.productSlug )?.term
 	);
 	const is2023OnboardingPricingGrid = isEnabled( 'onboarding/2023-pricing-grid' );
-	const eCommerceTrialDaysLeft = Math.round( getECommerceTrialDaysLeft( state, selectedSiteId ) );
-	const isTrialExpired = isECommerceTrialExpired( state, selectedSiteId );
-	const eCommerceTrialExpiration = getECommerceTrialExpiration( state, selectedSiteId );
 
 	return {
 		currentPlan,
@@ -251,8 +242,5 @@ export default connect( ( state ) => {
 		showTreatmentPlansReorderTest: isTreatmentPlansReorderTest( state ),
 		plansLoaded: Boolean( getPlanSlug( state, getPlan( PLAN_FREE )?.getProductId() || 0 ) ),
 		is2023OnboardingPricingGrid,
-		eCommerceTrialDaysLeft,
-		isTrialExpired,
-		eCommerceTrialExpiration,
 	};
-} )( localize( withTrackingTool( 'HotJar' )( withLocalizedMoment( Plans ) ) ) );
+} )( localize( withTrackingTool( 'HotJar' )( Plans ) ) );
