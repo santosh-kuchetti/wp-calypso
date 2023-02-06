@@ -131,9 +131,16 @@ export class PlansFeaturesMainPM extends Component {
 		return plans;
 	}
 
-	render() {
-		const { siteId, planTypeSelectorProps } = this.props;
+	getPlanTypeSelector() {
+		const { planTypeSelectorProps, shouldHideMonthlyToggle } = this.props;
 		const plans = this.getPlans();
+		if ( shouldHideMonthlyToggle === false ) {
+			return <PlanTypeSelector { ...planTypeSelectorProps } kind="interval" plans={ plans } />;
+		}
+	}
+
+	render() {
+		const { siteId } = this.props;
 
 		return (
 			<div className={ classNames( 'plans-features-main' ) }>
@@ -141,7 +148,7 @@ export class PlansFeaturesMainPM extends Component {
 				<QuerySites siteId={ siteId } />
 				<QuerySitePlans siteId={ siteId } />
 				<div className="plans-features-main__notice" />
-				<PlanTypeSelector { ...planTypeSelectorProps } kind="interval" plans={ plans } />
+				{ this.getPlanTypeSelector() }
 				{ this.showPricingGrid() }
 				<PlanFAQ />
 			</div>
@@ -167,6 +174,7 @@ PlansFeaturesMainPM.propTypes = {
 	redirectTo: PropTypes.string,
 	selectedFeature: PropTypes.string,
 	selectedPlan: PropTypes.string,
+	shouldHideMonthlyToggle: PropTypes.bool,
 	showFAQ: PropTypes.bool,
 	siteId: PropTypes.number,
 	siteSlug: PropTypes.string,
@@ -185,6 +193,7 @@ PlansFeaturesMainPM.defaultProps = {
 	hidePremiumPlan: false,
 	intervalType: 'yearly',
 	isChatAvailable: false,
+	shouldHideMonthlyToggle: false,
 	showFAQ: true,
 	siteId: null,
 	siteSlug: '',
@@ -200,6 +209,7 @@ export default connect( ( state, props ) => {
 	const sitePlanSlug = sitePlan?.product_slug;
 	const siteSlug = getSiteSlug( state, siteId );
 	const eligibleForWpcomMonthlyPlans = isEligibleForWpComMonthlyPlan( state, siteId );
+	const shouldHideMonthlyToggle = props.shouldHideMonthlyToggle;
 
 	let customerType = chooseDefaultCustomerType( {
 		currentCustomerType: props.customerType,
@@ -233,5 +243,6 @@ export default connect( ( state, props ) => {
 		siteSlug,
 		sitePlanSlug,
 		planTypeSelectorProps,
+		shouldHideMonthlyToggle,
 	};
 } )( localize( PlansFeaturesMainPM ) );

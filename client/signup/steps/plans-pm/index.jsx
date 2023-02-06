@@ -19,6 +19,7 @@ import { LoadingEllipsis } from 'calypso/components/loading-ellipsis';
 import MarketingMessage from 'calypso/components/marketing-message';
 import Notice from 'calypso/components/notice';
 import { getTld, isSubdomain } from 'calypso/lib/domains';
+import { loadExperimentAssignment } from 'calypso/lib/explat';
 import { getSiteTypePropertyValue } from 'calypso/lib/signup/site-type';
 import StepWrapper from 'calypso/signup/step-wrapper';
 import { recordTracksEvent } from 'calypso/state/analytics/actions';
@@ -30,18 +31,28 @@ import { getSiteType } from 'calypso/state/signup/steps/site-type/selectors';
 import { getSiteBySlug } from 'calypso/state/sites/selectors';
 import PlansFeaturesMainPM from './plans-features-main-pm';
 import '../plans/style.scss';
-import './style.scss';
 
 export class PlansStepPM extends Component {
-	state = {
-		isDesktop: isDesktop(),
-	};
-
+	constructor( props ) {
+		super( props );
+		this.state = {
+			isDesktop: isDesktop(),
+			experiment: null,
+			experimentIsLoading: true,
+		};
+	}
 	componentDidMount() {
 		this.unsubscribe = subscribeIsDesktop( ( matchesDesktop ) =>
 			this.setState( { isDesktop: matchesDesktop } )
 		);
 		this.props.saveSignupStep( { stepName: this.props.stepName } );
+
+		loadExperimentAssignment( 'paid_media_signup_2023_02_hide_monthly' ).then(
+			( experimentName ) => {
+				this.setState( { experiment: experimentName } );
+				this.setState( { experimentIsLoading: false } );
+			}
+		);
 	}
 
 	componentWillUnmount() {
@@ -170,6 +181,7 @@ export class PlansStepPM extends Component {
 					isAllPaidPlansShown={ true }
 					shouldShowPlansFeatureComparison={ this.state.isDesktop } // Show feature comparison layout in signup flow and desktop resolutions
 					isReskinned={ isReskinned }
+					shouldHideMonthlyToggle={ this.state.experiment?.variationName === 'treatment' }
 				/>
 			</div>
 		);
@@ -295,6 +307,9 @@ export class PlansStepPM extends Component {
 			'is-wide-layout': true,
 		} );
 
+		if ( this.state.experimentIsLoading ) {
+			return this.renderLoading();
+		}
 		return (
 			<>
 				<QueryPlans />
