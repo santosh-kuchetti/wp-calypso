@@ -24,6 +24,9 @@ import { connect } from 'react-redux';
 import QueryPlans from 'calypso/components/data/query-plans';
 import QuerySitePlans from 'calypso/components/data/query-site-plans';
 import QuerySites from 'calypso/components/data/query-sites';
+import FormattedHeader from 'calypso/components/formatted-header';
+import { getTld } from 'calypso/lib/domains';
+import PlanFeatures from 'calypso/my-sites/plan-features';
 import PlanFeaturesComparison from 'calypso/my-sites/plan-features-comparison';
 import PlanTypeSelector from 'calypso/my-sites/plans-features-main/plan-type-selector';
 import PlanFAQ from 'calypso/my-sites/plans-features-main/plansStepFaq';
@@ -43,24 +46,66 @@ export class PlansFeaturesMainPM extends Component {
 		const {
 			basePlansPath,
 			customerType,
+			discountEndDate,
 			domainName,
+			flowName,
 			isInSignup,
 			isJetpack,
 			isLandingPage,
 			isLaunchPage,
-			flowName,
 			onUpgradeClick,
+			plansWithScroll,
+			redirectTo,
 			selectedFeature,
 			selectedPlan,
-			withDiscount,
-			discountEndDate,
-			redirectTo,
+			shouldShowPlansFeatureComparison,
 			siteId,
-			plansWithScroll,
+			withDiscount,
 		} = this.props;
 
 		const plans = this.getPlans();
 
+		if ( shouldShowPlansFeatureComparison ) {
+			return (
+				<div
+					className={ classNames(
+						'plans-features-main__group',
+						'is-wpcom',
+						`is-customer-${ customerType }`,
+						{
+							'is-scrollable': plansWithScroll,
+						}
+					) }
+					data-e2e-plans="wpcom"
+				>
+					<PlanFeaturesComparison
+						basePlansPath={ basePlansPath }
+						discountEndDate={ discountEndDate }
+						domainName={ domainName }
+						flowName={ flowName }
+						isInSignup={ isInSignup }
+						isLandingPage={ isLandingPage }
+						isLaunchPage={ isLaunchPage }
+						isReskinned={ true }
+						onUpgradeClick={ onUpgradeClick }
+						plans={ plans }
+						popularPlanSpec={ getPopularPlanSpec( {
+							flowName,
+							customerType,
+							isJetpack,
+							availablePlans: plans,
+						} ) }
+						redirectTo={ redirectTo }
+						selectedFeature={ selectedFeature }
+						selectedPlan={ selectedPlan }
+						siteId={ siteId }
+						withDiscount={ withDiscount }
+						visiblePlans={ plans }
+						withScroll={ plansWithScroll }
+					/>
+				</div>
+			);
+		}
 		return (
 			<div
 				className={ classNames(
@@ -73,15 +118,19 @@ export class PlansFeaturesMainPM extends Component {
 				) }
 				data-e2e-plans="wpcom"
 			>
-				<PlanFeaturesComparison
+				{ this.renderSecondaryFormattedHeader() }
+				<PlanFeatures
+					redirectToAddDomainFlow={ false }
+					domainAndPlanPackage={ false }
 					basePlansPath={ basePlansPath }
+					disableBloggerPlanWithNonBlogDomain={ false }
 					domainName={ domainName }
+					nonDotBlogDomains={ this.filterDotBlogDomains() }
 					isInSignup={ isInSignup }
 					isLandingPage={ isLandingPage }
 					isLaunchPage={ isLaunchPage }
 					onUpgradeClick={ onUpgradeClick }
 					plans={ plans }
-					flowName={ flowName }
 					redirectTo={ redirectTo }
 					visiblePlans={ plans }
 					selectedFeature={ selectedFeature }
@@ -95,13 +144,43 @@ export class PlansFeaturesMainPM extends Component {
 						isJetpack,
 						availablePlans: plans,
 					} ) }
+					flowName={ flowName }
 					siteId={ siteId }
-					isReskinned={ true }
+					isInVerticalScrollingPlansExperiment={ true }
+					kindOfPlanTypeSelector={ this.props.planTypeSelector }
+					isPlansInsideStepper={ false }
 				/>
 			</div>
 		);
 	}
+	renderSecondaryFormattedHeader() {
+		let headerText;
+		let subHeaderText;
 
+		if ( ! headerText ) {
+			return null;
+		}
+
+		return (
+			<FormattedHeader
+				headerText={ headerText }
+				subHeaderText={ subHeaderText }
+				compactOnMobile
+				isSecondary
+			/>
+		);
+	}
+	filterDotBlogDomains() {
+		const domains = this.props?.domains || [];
+		return domains.filter( function ( domainInfo ) {
+			if ( domainInfo.type === 'WPCOM' ) {
+				return false;
+			}
+
+			const domainName = domainInfo?.domain || '';
+			return ! 'blog'.startsWith( getTld( domainName ) );
+		} );
+	}
 	getPlanBillingPeriod( intervalType, defaultValue = null ) {
 		const plans = {
 			monthly: TERM_MONTHLY,
@@ -157,33 +236,33 @@ export class PlansFeaturesMainPM extends Component {
 }
 
 PlansFeaturesMainPM.propTypes = {
-	redirectToAddDomainFlow: PropTypes.bool,
-	domainAndPlanPackage: PropTypes.string,
 	basePlansPath: PropTypes.string,
+	customerType: PropTypes.string,
+	domainAndPlanPackage: PropTypes.string,
+	flowName: PropTypes.string,
 	hideFreePlan: PropTypes.bool,
 	hidePersonalPlan: PropTypes.bool,
 	hidePremiumPlan: PropTypes.bool,
-	customerType: PropTypes.string,
-	flowName: PropTypes.string,
 	intervalType: PropTypes.oneOf( [ 'monthly', 'yearly' ] ),
 	isChatAvailable: PropTypes.bool,
+	isAllPaidPlansShown: PropTypes.bool,
 	isInSignup: PropTypes.bool,
 	isLandingPage: PropTypes.bool,
-
+	isReskinned: PropTypes.bool,
 	onUpgradeClick: PropTypes.func,
+	plansWithScroll: PropTypes.bool,
+	planTypes: PropTypes.array,
+	planTypeSelector: PropTypes.string,
+	isPlansInsideStepper: PropTypes.bool,
 	redirectTo: PropTypes.string,
+	redirectToAddDomainFlow: PropTypes.bool,
 	selectedFeature: PropTypes.string,
 	selectedPlan: PropTypes.string,
 	shouldHideMonthlyToggle: PropTypes.bool,
+	shouldShowPlansFeatureComparison: PropTypes.bool,
 	showFAQ: PropTypes.bool,
 	siteId: PropTypes.number,
 	siteSlug: PropTypes.string,
-	isAllPaidPlansShown: PropTypes.bool,
-	plansWithScroll: PropTypes.bool,
-	planTypes: PropTypes.array,
-	isReskinned: PropTypes.bool,
-	isPlansInsideStepper: PropTypes.bool,
-	planTypeSelector: PropTypes.string,
 };
 
 PlansFeaturesMainPM.defaultProps = {
@@ -193,23 +272,25 @@ PlansFeaturesMainPM.defaultProps = {
 	hidePremiumPlan: false,
 	intervalType: 'yearly',
 	isChatAvailable: false,
-	shouldHideMonthlyToggle: false,
+	isPlansInsideStepper: false,
+	isReskinned: false,
+	plansWithScroll: false,
+	planTypeSelector: 'interval',
 	showFAQ: true,
+	shouldHideMonthlyToggle: false,
+	shouldShowPlansFeatureComparison: true,
 	siteId: null,
 	siteSlug: '',
-	plansWithScroll: false,
-	isReskinned: false,
-	planTypeSelector: 'interval',
-	isPlansInsideStepper: false,
 };
 
 export default connect( ( state, props ) => {
+	const shouldHideMonthlyToggle = props.shouldHideMonthlyToggle;
+	const shouldShowPlansFeatureComparison = props.shouldShowPlansFeatureComparison;
 	const siteId = props.site?.ID;
 	const sitePlan = getSitePlan( state, siteId );
 	const sitePlanSlug = sitePlan?.product_slug;
 	const siteSlug = getSiteSlug( state, siteId );
 	const eligibleForWpcomMonthlyPlans = isEligibleForWpComMonthlyPlan( state, siteId );
-	const shouldHideMonthlyToggle = props.shouldHideMonthlyToggle;
 
 	let customerType = chooseDefaultCustomerType( {
 		currentCustomerType: props.customerType,
@@ -227,22 +308,23 @@ export default connect( ( state, props ) => {
 
 	const planTypeSelectorProps = {
 		basePlansPath: props.basePlansPath,
-		isInSignup: props.isInSignup,
+		customerType: customerType,
 		eligibleForWpcomMonthlyPlans: eligibleForWpcomMonthlyPlans,
+		hidePersonalPlan: props.hidePersonalPlan,
+		isInSignup: props.isInSignup,
 		isPlansInsideStepper: props.isPlansInsideStepper,
 		intervalType: props.intervalType,
-		customerType: customerType,
-		hidePersonalPlan: props.hidePersonalPlan,
 		siteSlug,
 	};
 
 	return {
 		isJetpack: isJetpackSite( state, siteId ),
 		isMultisite: isJetpackSiteMultiSite( state, siteId ),
+		planTypeSelectorProps,
+		shouldHideMonthlyToggle,
+		shouldShowPlansFeatureComparison,
 		siteId,
 		siteSlug,
 		sitePlanSlug,
-		planTypeSelectorProps,
-		shouldHideMonthlyToggle,
 	};
 } )( localize( PlansFeaturesMainPM ) );
