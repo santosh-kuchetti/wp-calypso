@@ -33,7 +33,7 @@ import isEligibleForWpComMonthlyPlan from 'calypso/state/selectors/is-eligible-f
 import isSiteWPForTeams from 'calypso/state/selectors/is-site-wpforteams';
 import { getCurrentPlan } from 'calypso/state/sites/plans/selectors';
 import { getSelectedSite, getSelectedSiteId } from 'calypso/state/ui/selectors';
-import ECommerceTrialPlans from './ecommerce-trial';
+import ECommerceTrialPlansPage from './ecommerce-trial';
 import PlansHeader from './header';
 
 function DomainAndPlanUpsellNotice() {
@@ -166,7 +166,7 @@ class Plans extends Component {
 	}
 
 	renderEcommerceTrialPage() {
-		return <ECommerceTrialPlans />;
+		return <ECommerceTrialPlansPage />;
 	}
 
 	render() {
