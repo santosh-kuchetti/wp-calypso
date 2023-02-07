@@ -132,6 +132,7 @@
 		"pattern-assembler/client-side-render": true,
 		"pattern-assembler/logged-out-showcase": true,
 		"pattern-assembler/write-flow": true,
+		"pattern-assembler/color-and-fonts": true,
 		"plans/personal-plan": true,
 		"plans/pro-plan": false,
 		"plans/starter-plan": false,

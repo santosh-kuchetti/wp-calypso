@@ -7,6 +7,7 @@ import {
 } from '@wordpress/block-editor';
 import { useResizeObserver, useRefEffect } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
+import { useGlobalStylesOutput } from '@wordpress/edit-site/build-module/components/global-styles/use-global-styles-output';
 import React, { useMemo } from 'react';
 import { BLOCK_MAX_HEIGHT } from '../constants';
 import type { RenderedStyle } from '../types';
@@ -51,13 +52,21 @@ const ScaledBlockRendererContainer = ( {
 		};
 	}, [] );
 
+	const [ globalStyles ] = useGlobalStylesOutput();
+
 	const editorStyles = useMemo( () => {
 		const mergedStyles = [
 			...( styles || [] ),
+			...( globalStyles || [] ),
 			...( customStyles || [] ),
 			// Avoid scrollbars for pattern previews.
 			{
 				css: 'body{height:auto;overflow:hidden;}',
+				__unstableType: 'presets',
+			},
+			// Transition when either color or background-color is changed
+			{
+				css: 'body{transition: background-color 0.2s linear, color 0.2s linear;}',
 				__unstableType: 'presets',
 			},
 		];
@@ -67,7 +76,7 @@ const ScaledBlockRendererContainer = ( {
 		}
 
 		return [ ...mergedStyles, { css: inlineCss } ];
-	}, [ styles, customStyles, inlineCss ] );
+	}, [ styles, globalStyles, customStyles, inlineCss ] );
 
 	const svgFilters = useMemo( () => {
 		return [ ...( duotone?.default ?? [] ), ...( duotone?.theme ?? [] ) ];

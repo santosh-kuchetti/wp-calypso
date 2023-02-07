@@ -350,6 +350,17 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 					/>
 				</NavigatorScreen>
 
+				{ isEnabled( 'pattern-assembler/color-and-fonts' ) && (
+					<NavigatorScreen path="/color-palettes">
+						<AsyncLoad
+							require="./screen-color-palettes"
+							placeholder={ null }
+							siteId={ site?.ID }
+							stylesheet={ selectedDesign?.recipe?.stylesheet }
+						/>
+					</NavigatorScreen>
+				) }
+
 				<NavigatorListener
 					onLocationChange={ ( navigatorLocation ) => setNavigatorPath( navigatorLocation.path ) }
 				/>
