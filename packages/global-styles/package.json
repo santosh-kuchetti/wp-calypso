@@ -29,9 +29,17 @@
 		"watch": "tsc --build ./tsconfig.json --watch"
 	},
 	"dependencies": {
+		"@wordpress/block-editor": "^9.1.0",
+		"@wordpress/components": "^19.15.0",
+		"@wordpress/compose": "^5.7.0",
+		"@wordpress/edit-site": "^4.6.0",
+		"@wordpress/keycodes": "^3.9.0",
+		"classnames": "^2.3.1",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
-		"tslib": "^2.3.0"
+		"react-query": "^3.32.1",
+		"tslib": "^2.3.0",
+		"wpcom-proxy-request": "workspace:^"
 	},
 	"devDependencies": {
 		"@automattic/calypso-typescript-config": "workspace:^",
