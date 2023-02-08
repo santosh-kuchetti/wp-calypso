@@ -276,9 +276,6 @@ class Plans extends Component {
 
 		const allDomains = domainSidebarExperimentUser ? getDomainRegistrations( this.props.cart ) : [];
 		const currentDomain = allDomains.length ? allDomains[ 0 ]?.meta : null;
-		if ( domainSidebarExperimentUser && ! currentDomain ) {
-			page.redirect( `/domains/add/${ selectedSite.slug }?domainAndPlanPackage=true` );
-		}
 
 		return (
 			<div>
