@@ -6,6 +6,7 @@ export interface Color {
 
 export interface GlobalStylesObject {
 	id?: number;
+	title?: string;
 	settings: {
 		color?: {
 			palette: {

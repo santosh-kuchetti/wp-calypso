@@ -1,4 +1,5 @@
 import { isEnabled } from '@automattic/calypso-config';
+import { useSyncGlobalStyles } from '@automattic/global-styles';
 import { StepContainer, SITE_SETUP_FLOW, SITE_ASSEMBLER_FLOW } from '@automattic/onboarding';
 import {
 	__experimentalNavigatorProvider as NavigatorProvider,
@@ -6,7 +7,7 @@ import {
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useTranslate } from 'i18n-calypso';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useDispatch as useReduxDispatch } from 'react-redux';
 import AsyncLoad from 'calypso/components/async-load';
 import { recordTracksEvent } from 'calypso/lib/analytics/tracks';
@@ -25,9 +26,11 @@ import ScreenHomepage from './screen-homepage';
 import ScreenMain from './screen-main';
 import ScreenPatternList from './screen-pattern-list';
 import { encodePatternId, createCustomHomeTemplateContent } from './utils';
+import withGlobalStylesProvider from './with-global-styles-provider';
 import type { Step } from '../../types';
 import type { Pattern } from './types';
 import type { DesignRecipe, Design } from '@automattic/design-picker/src/types';
+import type { GlobalStylesObject } from '@automattic/global-styles';
 import './style.scss';
 
 const PatternAssembler: Step = ( { navigation, flow } ) => {
@@ -50,6 +53,14 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 	const siteId = useSiteIdParam();
 	const siteSlugOrId = siteSlug ? siteSlug : siteId;
 	const allPatterns = useAllPatterns();
+	const isEnabledColorAndFonts = isEnabled( 'pattern-assembler/color-and-fonts' );
+	const [ selectedColorPaletteVariation, setSelectedColorPaletteVariation ] =
+		useState< GlobalStylesObject | null >( null );
+
+	const selectedVariations = useMemo(
+		() => [ selectedColorPaletteVariation ],
+		[ selectedColorPaletteVariation ]
+	);
 
 	const largePreviewProps = {
 		placeholder: null,
@@ -70,6 +81,8 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 			goToStep?.( 'goals' );
 		}
 	}, [] );
+
+	useSyncGlobalStyles( selectedVariations, isEnabledColorAndFonts );
 
 	const getPatterns = ( patternType?: string | null ) => {
 		let patterns = [ header, ...sections, footer ];
@@ -350,13 +363,15 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 					/>
 				</NavigatorScreen>
 
-				{ isEnabled( 'pattern-assembler/color-and-fonts' ) && (
+				{ isEnabledColorAndFonts && (
 					<NavigatorScreen path="/color-palettes">
 						<AsyncLoad
 							require="./screen-color-palettes"
 							placeholder={ null }
 							siteId={ site?.ID }
 							stylesheet={ selectedDesign?.recipe?.stylesheet }
+							selectedColorPaletteVariation={ selectedColorPaletteVariation }
+							onSelect={ setSelectedColorPaletteVariation }
 						/>
 					</NavigatorScreen>
 				) }
@@ -408,4 +423,4 @@ const PatternAssembler: Step = ( { navigation, flow } ) => {
 	);
 };
 
-export default PatternAssembler;
+export default withGlobalStylesProvider( PatternAssembler );
