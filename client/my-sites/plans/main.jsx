@@ -110,6 +110,7 @@ function PlansFeaturesMainWithComparison( props ) {
 			isReskinned={ true } // for styles
 			isInSignup={ true } // for the correct styles
 			onUpgradeClick={ handleUpgradeClick }
+			busyOnUpgradeClick={ true }
 		/>
 	);
 }
