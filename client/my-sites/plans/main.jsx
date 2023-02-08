@@ -61,6 +61,7 @@ function DomainAndPlanUpsellNotice() {
 
 function PlansFeaturesMainWithComparison( props ) {
 	const isDesktop = useDesktopBreakpoint();
+	// TODO: Remove handleUpgradeClick this if 2023 layout is used.
 	const handleUpgradeClick = async ( cartItemForPlan ) => {
 		const selectedSiteSlug = props.selectedSite.slug;
 		const redirectTo = props.redirectTo;
@@ -108,7 +109,7 @@ function PlansFeaturesMainWithComparison( props ) {
 			plansWithScroll={ isDesktop }
 			shouldShowPlansFeatureComparison={ isDesktop } // Show feature comparison layout in signup flow and desktop resolutions
 			isReskinned={ true } // for styles
-			isInSignup={ true } // for the correct styles
+			isInSignup={ true } // for styles
 			onUpgradeClick={ handleUpgradeClick }
 			busyOnUpgradeClick={ true }
 		/>
