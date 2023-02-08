@@ -1,7 +1,6 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { useDispatch } from '@wordpress/data';
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import useBlockRendererSettings from '../hooks/use-block-renderer-settings';
+import BlockRendererContext from './block-renderer-context';
 
 export interface Props {
 	siteId: number | string;
@@ -9,23 +8,29 @@ export interface Props {
 	children: JSX.Element;
 }
 
-const BlockRendererProvider = ( { siteId, stylesheet = '', children }: Props ) => {
+const useBlockRendererContext = ( siteId: number | string, stylesheet: string ) => {
 	const { data: settings } = useBlockRendererSettings( siteId, stylesheet );
 
-	// @ts-expect-error Type definition is outdated
-	const { updateSettings } = useDispatch( blockEditorStore );
-
-	useEffect( () => {
-		if ( settings ) {
-			updateSettings( settings );
-		}
+	const context = useMemo( () => {
+		return {
+			isReady: !! settings,
+			settings: settings ?? {},
+		};
 	}, [ settings ] );
 
-	if ( ! settings ) {
+	return context;
+};
+
+const BlockRendererProvider = ( { siteId, stylesheet = '', children }: Props ) => {
+	const context = useBlockRendererContext( siteId, stylesheet );
+
+	if ( ! context.isReady ) {
 		return null;
 	}
 
-	return children;
+	return (
+		<BlockRendererContext.Provider value={ context }>{ children }</BlockRendererContext.Provider>
+	);
 };
 
 export default BlockRendererProvider;

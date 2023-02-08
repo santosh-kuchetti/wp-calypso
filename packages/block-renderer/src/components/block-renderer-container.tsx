@@ -1,15 +1,14 @@
 // The idea of this file is from the Gutenberg file packages/block-editor/src/components/block-preview/auto.js (d50e613).
 import {
-	store as blockEditorStore,
 	__unstableIframe as Iframe,
 	__unstableEditorStyles as EditorStyles,
 	__unstablePresetDuotoneFilter as PresetDuotoneFilter,
 } from '@wordpress/block-editor';
 import { useResizeObserver, useRefEffect } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
 import { useGlobalStylesOutput } from '@wordpress/edit-site/build-module/components/global-styles/use-global-styles-output';
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { BLOCK_MAX_HEIGHT } from '../constants';
+import BlockRendererContext from './block-renderer-context';
 import type { RenderedStyle } from '../types';
 import './block-renderer-container.scss';
 
@@ -42,15 +41,15 @@ const ScaledBlockRendererContainer = ( {
 	maxHeightFor100vh,
 }: ScaledBlockRendererContainerProps ) => {
 	const [ contentResizeListener, { height: contentHeight } ] = useResizeObserver();
-	const { styles, assets, duotone } = useSelect( ( select ) => {
-		// @ts-expect-error Type definition is outdated
-		const settings = select( blockEditorStore ).getSettings();
-		return {
+	const { settings } = useContext( BlockRendererContext );
+	const { styles, assets, duotone } = useMemo(
+		() => ( {
 			styles: settings.styles,
 			assets: settings.__unstableResolvedAssets,
 			duotone: settings.__experimentalFeatures?.color?.duotone,
-		};
-	}, [] );
+		} ),
+		[ settings ]
+	);
 
 	const [ globalStyles ] = useGlobalStylesOutput();
 
