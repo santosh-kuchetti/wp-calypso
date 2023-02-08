@@ -114,7 +114,7 @@ body.is-section-plans.is-experiment-user {
 		}
 	}
 
-	.plans-features-main__group.is-scrollable {
+	.plans-features-main__group.is-scrollable:not(.is-2023-pricing-grid) {
 		@media ( min-width: 1800px ) {
 			margin-left: -360px;
 		}
