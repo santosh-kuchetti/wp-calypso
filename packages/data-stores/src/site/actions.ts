@@ -211,9 +211,11 @@ export function createActions( clientCreds: WpcomClientCredentials ) {
 
 	function* setGlobalStyles(
 		siteIdOrSlug: number | string,
-		globalStylesId: number,
+		stylesheet: string,
 		globalStyles: GlobalStyles
 	) {
+		const globalStylesId: number = yield getGlobalStylesId( siteIdOrSlug, stylesheet );
+
 		const updatedGlobalStyles: GlobalStyles = yield wpcomRequest( {
 			path: `/sites/${ encodeURIComponent( siteIdOrSlug ) }/global-styles/${ globalStylesId }`,
 			apiNamespace: 'wp/v2',
@@ -372,11 +374,7 @@ export function createActions( clientCreds: WpcomClientCredentials ) {
 			);
 
 			if ( currentVariation ) {
-				const globalStylesId: number = yield getGlobalStylesId(
-					siteSlug,
-					activatedTheme.stylesheet
-				);
-				yield setGlobalStyles( siteSlug, globalStylesId, currentVariation );
+				yield setGlobalStyles( siteSlug, activatedTheme.stylesheet, currentVariation );
 			}
 		}
 	}
@@ -690,6 +688,7 @@ export function createActions( clientCreds: WpcomClientCredentials ) {
 		getCart,
 		setCart,
 		getGlobalStyles,
+		setGlobalStyles,
 		receiveSiteGlobalStyles,
 		setSiteSetupError,
 		clearSiteSetupError,
